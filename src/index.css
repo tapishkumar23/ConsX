@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.rbc-calendar {
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+}
