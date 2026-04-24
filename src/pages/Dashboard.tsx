@@ -1,5 +1,8 @@
 import CalendarView from "../components/CalendarView";
 import Layout from "../components/layout/Layout";
+import Tasks from "../components/Tasks"
+import CRM from "../components/CRM";
+import CRMBoard from "../components/CRMBoard";
 
 const Dashboard = () => {
   return (
@@ -17,6 +20,13 @@ const Dashboard = () => {
 
         {/* Calendar */}
         <CalendarView />
+       
+        <Tasks />
+
+        <CRM />
+
+        <CRMBoard />
+
 
       </div>
     </Layout>
