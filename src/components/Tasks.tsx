@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../Supabase/supabase";
 
 type Task = {
   id: number;
   title: string;
   description: string;
-  deadline: string;
+  deadline: string | null;
   completed: boolean;
 };
 
@@ -17,55 +18,95 @@ const Tasks = () => {
   const [description, setDescription] = useState("");
   const [deadline, setDeadline] = useState("");
 
-  // Add or Update
-  const handleSubmit = () => {
+  // FETCH TASKS
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Fetch error:", error);
+      return;
+    }
+
+    setTasks(data || []);
+  };
+
+  // ADD / UPDATE TASK
+  const handleSubmit = async () => {
     if (!title) return;
 
-    if (editingId) {
-      setTasks(tasks.map(t =>
-        t.id === editingId
-          ? { ...t, title, description, deadline }
-          : t
-      ));
-      setEditingId(null);
+    if (editingId !== null) {
+      const { error } = await supabase
+        .from("tasks")
+        .update({
+          title,
+          description,
+          deadline,
+        })
+        .eq("id", editingId);
+
+      if (error) console.error("Update error:", error);
     } else {
-      const newTask: Task = {
-        id: Date.now(),
-        title,
-        description,
-        deadline,
-        completed: false,
-      };
-      setTasks([...tasks, newTask]);
+      const { error } = await supabase.from("tasks").insert([
+        {
+          title,
+          description,
+          deadline,
+          completed: false,
+        },
+      ]);
+
+      if (error) console.error("Insert error:", error);
     }
+
+    await fetchTasks();
 
     setTitle("");
     setDescription("");
     setDeadline("");
+    setEditingId(null);
     setShowForm(false);
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter(t => t.id !== id));
+  // DELETE TASK
+  const deleteTask = async (id: number) => {
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
+
+    if (error) console.error("Delete error:", error);
+
+    fetchTasks();
   };
 
-  const toggleComplete = (id: number) => {
-    setTasks(tasks.map(t =>
-      t.id === id ? { ...t, completed: !t.completed } : t
-    ));
+  // TOGGLE COMPLETE
+  const toggleComplete = async (task: Task) => {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ completed: !task.completed })
+      .eq("id", task.id);
+
+    if (error) console.error("Toggle error:", error);
+
+    fetchTasks();
   };
 
   const editTask = (task: Task) => {
     setTitle(task.title);
     setDescription(task.description);
-    setDeadline(task.deadline);
+    setDeadline(task.deadline || "");
     setEditingId(task.id);
     setShowForm(true);
   };
 
   const getStatus = (task: Task) => {
     if (task.completed) return "completed";
-    if (task.deadline && new Date(task.deadline) < new Date()) return "overdue";
+    if (task.deadline && new Date(task.deadline) < new Date())
+      return "overdue";
     return "pending";
   };
 
@@ -97,25 +138,31 @@ const Tasks = () => {
             <p className="text-sm text-gray-500">No tasks yet</p>
           )}
 
-          {tasks.map(task => {
+          {tasks.map((task) => {
             const status = getStatus(task);
 
             return (
               <div key={task.id} className="border p-3 rounded">
                 <p className="font-medium">{task.title}</p>
-                <p className="text-sm text-gray-600">{task.description}</p>
+                <p className="text-sm text-gray-600">
+                  {task.description}
+                </p>
 
                 <p className="text-xs">
                   Deadline: {task.deadline || "None"}
                 </p>
 
-                <p className={`text-xs font-semibold ${getStatusColor(status)}`}>
+                <p
+                  className={`text-xs font-semibold ${getStatusColor(
+                    status
+                  )}`}
+                >
                   {status.toUpperCase()}
                 </p>
 
                 <div className="flex gap-3 mt-2 text-sm">
                   <button
-                    onClick={() => toggleComplete(task.id)}
+                    onClick={() => toggleComplete(task)}
                     className="text-green-600"
                   >
                     {task.completed ? "Undo" : "Complete"}
@@ -159,28 +206,28 @@ const Tasks = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-semibold">
-              {editingId ? "Edit Task" : "Add Task"}
+              {editingId !== null ? "Edit Task" : "Add Task"}
             </h3>
 
             <input
               className="border p-2 w-full rounded"
               placeholder="Title"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
             />
 
             <input
               className="border p-2 w-full rounded"
               placeholder="Description"
               value={description}
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
             />
 
             <input
               type="date"
               className="border p-2 w-full rounded"
               value={deadline}
-              onChange={e => setDeadline(e.target.value)}
+              onChange={(e) => setDeadline(e.target.value)}
             />
 
             <div className="flex justify-between">
