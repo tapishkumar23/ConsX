@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../Supabase/supabase";
 
 type Status = "todo" | "in-progress" | "done";
 type Priority = "low" | "medium" | "high";
@@ -24,6 +25,31 @@ const Tasks = () => {
   const [status, setStatus] = useState<Status>("todo");
   const [priority, setPriority] = useState<Priority>("medium");
 
+  // ✅ FETCH TASKS (FIXED)
+  const fetchTasks = async () => {
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("FETCH ERROR:", error.message);
+      return;
+    }
+
+    // ✅ Fix date format crash
+    const formatted = (data || []).map((t) => ({
+      ...t,
+      deadline: t.deadline ? String(t.deadline) : "",
+    }));
+
+    setTasks(formatted);
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
   const resetForm = () => {
     setTitle("");
     setDescription("");
@@ -34,36 +60,57 @@ const Tasks = () => {
     setShowForm(false);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title) return;
 
     if (editingId) {
-      setTasks(
-        tasks.map((t) =>
-          t.id === editingId
-            ? { ...t, title, description, deadline, status, priority }
-            : t
-        )
-      );
-    } else {
-      setTasks([
-        ...tasks,
-        {
-          id: Date.now(),
+      // ✅ UPDATE
+      const { error } = await supabase
+        .from("tasks")
+        .update({
           title,
           description,
-          deadline,
+          deadline: deadline || null,
+          status,
+          priority,
+        })
+        .eq("id", editingId);
+
+      if (error) {
+        console.error("UPDATE ERROR:", error.message);
+        return;
+      }
+    } else {
+      // ✅ INSERT (FIXED)
+      const { error } = await supabase.from("tasks").insert([
+        {
+          title,
+          description,
+          deadline: deadline || null,
           status,
           priority,
         },
       ]);
+
+      if (error) {
+        console.error("INSERT ERROR:", error.message);
+        return;
+      }
     }
 
+    await fetchTasks();
     resetForm();
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter((t) => t.id !== id));
+  const deleteTask = async (id: number) => {
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
+
+    if (error) {
+      console.error("DELETE ERROR:", error.message);
+      return;
+    }
+
+    fetchTasks();
   };
 
   const editTask = (task: Task) => {
@@ -257,18 +304,9 @@ const Tasks = () => {
 
             <p>{selectedTask.description || "No description"}</p>
 
-            <p>
-              <strong>Priority:</strong> {selectedTask.priority}
-            </p>
-
-            <p>
-              <strong>Status:</strong> {selectedTask.status}
-            </p>
-
-            <p>
-              <strong>Deadline:</strong>{" "}
-              {selectedTask.deadline || "N/A"}
-            </p>
+            <p><strong>Priority:</strong> {selectedTask.priority}</p>
+            <p><strong>Status:</strong> {selectedTask.status}</p>
+            <p><strong>Deadline:</strong> {selectedTask.deadline || "N/A"}</p>
 
             <div className="flex justify-between mt-4">
               <button
