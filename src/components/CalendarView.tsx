@@ -23,7 +23,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// 🔥 DB type
 type DBEvent = {
   id: string;
   title: string;
@@ -43,10 +42,8 @@ type EventType = {
 const CalendarView = () => {
   const [events, setEvents] = useState<EventType[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<SlotInfo | null>(null);
   const [editingEvent, setEditingEvent] = useState<EventType | null>(null);
 
-  // 🔥 NEW: navigation state
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<"month" | "week" | "day">("month");
 
@@ -57,7 +54,7 @@ const CalendarView = () => {
     end: "",
   });
 
-  // 🔥 FETCH EVENTS
+  // FETCH EVENTS
   const fetchEvents = async () => {
     const { data, error } = await supabase.from("events").select("*");
 
@@ -81,9 +78,8 @@ const CalendarView = () => {
     fetchEvents();
   }, []);
 
-  // 📌 Open modal (new)
+  // SLOT SELECT
   const handleSelectSlot = (slotInfo: SlotInfo) => {
-    setSelectedSlot(slotInfo);
     setEditingEvent(null);
 
     setForm({
@@ -96,7 +92,7 @@ const CalendarView = () => {
     setShowModal(true);
   };
 
-  // 📌 Edit
+  // EVENT SELECT
   const handleSelectEvent = (event: RBCEvent) => {
     const e = event as EventType;
 
@@ -112,7 +108,7 @@ const CalendarView = () => {
     setShowModal(true);
   };
 
-  // 💾 SAVE
+  // SAVE
   const handleSave = async () => {
     if (!form.title || !form.start || !form.end) return;
 
@@ -144,7 +140,7 @@ const CalendarView = () => {
     fetchEvents();
   };
 
-  // 🗑 DELETE
+  // DELETE
   const handleDelete = async () => {
     if (!editingEvent) return;
 
@@ -157,9 +153,10 @@ const CalendarView = () => {
     fetchEvents();
   };
 
-  // 🎨 Colors
+  // 🎨 EVENT STYLE
   const eventStyleGetter = (event: EventType) => {
     let bg = "#3b82f6";
+
     if (event.type === "leave") bg = "#ef4444";
     if (event.type === "task") bg = "#10b981";
 
@@ -169,36 +166,52 @@ const CalendarView = () => {
         borderRadius: "6px",
         color: "white",
         border: "none",
+        padding: "3px 5px",
+        fontSize: "11px",
+        fontWeight: "500",
       },
     };
   };
 
+  // ✅ CUSTOM EVENT (better readability)
+  const CustomEvent = ({ event }: { event: EventType }) => {
+    return (
+      <div title={event.title} className="leading-tight">
+        <div className="text-[11px] font-semibold truncate">
+          {event.title}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="bg-white rounded-xl p-4 shadow h-[600px] relative">
-      <Calendar
-        localizer={localizer}
-        events={events}
-        selectable
-        onSelectSlot={handleSelectSlot}
-        onSelectEvent={handleSelectEvent}
-        startAccessor="start"
-        endAccessor="end"
-        eventPropGetter={eventStyleGetter}
+    <div className="bg-white rounded-xl p-2 shadow h-[580px] max-w-5xl mx-auto">
+      
+      
+        <Calendar
+          localizer={localizer}
+          events={events}
+          selectable
+          onSelectSlot={handleSelectSlot}
+          onSelectEvent={handleSelectEvent}
+          startAccessor="start"
+          endAccessor="end"
+          eventPropGetter={eventStyleGetter}
+          components={{ event: CustomEvent }}
 
-        // 🔥 NAVIGATION
-        date={currentDate}
-        onNavigate={(date) => setCurrentDate(date)}
+          date={currentDate}
+          onNavigate={(date) => setCurrentDate(date)}
 
-        // 🔥 VIEW SWITCHING
-        view={view}
-        onView={(v) => setView(v as any)}
-        views={["month", "week", "day"]}
+          view={view}
+          onView={(v) => setView(v as any)}
+          views={["month", "week", "day"]}
 
-        toolbar={true}
+          toolbar={true}
+          style={{ height: "100%" }}
+        />
+      
 
-        style={{ height: "100%" }}
-      />
-
+      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl w-[380px] space-y-4 shadow-xl">

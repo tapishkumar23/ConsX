@@ -3,7 +3,23 @@
 @tailwind utilities;
 
 .rbc-calendar {
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
+  font-size: 13px;
+}
+
+.rbc-month-view {
+  font-size: 12px;
+}
+
+.rbc-date-cell {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.rbc-toolbar {
+  font-size: 14px;
+}
+
+.rbc-event {
+  font-size: 11px;
+  padding: 2px 4px;
 }
