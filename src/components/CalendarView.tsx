@@ -155,20 +155,21 @@ const CalendarView = () => {
 
   // 🎨 EVENT STYLE
   const eventStyleGetter = (event: EventType) => {
-    let bg = "#3b82f6";
+    let bg = "#0B3D2E";
 
-    if (event.type === "leave") bg = "#ef4444";
-    if (event.type === "task") bg = "#10b981";
+    if (event.type === "leave") bg = "#dc2626";
+    if (event.type === "task") bg = "#C6A15B";
 
     return {
       style: {
         backgroundColor: bg,
-        borderRadius: "6px",
-        color: "white",
-        border: "none",
-        padding: "3px 5px",
-        fontSize: "11px",
-        fontWeight: "500",
+    borderRadius: "8px",
+    color: "white",
+    border: "none",
+    padding: "4px 6px",
+    fontSize: "11px",
+    fontWeight: "600",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
       },
     };
   };
@@ -185,8 +186,7 @@ const CalendarView = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl p-2 shadow h-[580px] max-w-5xl mx-auto">
-      
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-sm border border-gray-200 h-[580px] max-w-5xl mx-auto hover:shadow-lg transition-all duration-300">
       
         <Calendar
           localizer={localizer}

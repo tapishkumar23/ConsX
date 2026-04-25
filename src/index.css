@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================
+   YOUR EXISTING STYLES
+   (UNCHANGED)
+========================= */
+
 .rbc-calendar {
   font-size: 13px;
 }
@@ -22,4 +27,110 @@
 .rbc-event {
   font-size: 11px;
   padding: 2px 4px;
+}
+
+/* =========================
+   UI ENHANCEMENTS (ADDED)
+========================= */
+
+/* Calendar container */
+.rbc-calendar {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Toolbar styling */
+.rbc-toolbar {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+/* Toolbar buttons */
+.rbc-toolbar button {
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+/* Hover */
+.rbc-toolbar button:hover {
+  background: #0B3D2E !important;
+  color: white !important;
+  border-color: #0B3D2E !important;
+}
+
+/* Active view button */
+.rbc-toolbar button.rbc-active {
+  background: #C6A15B !important;
+  color: black !important;
+  border-color: #C6A15B !important;
+}
+
+/* Month grid */
+.rbc-month-view {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+/* Day cells */
+.rbc-day-bg {
+  transition: background 0.2s ease;
+}
+
+/* Hover day */
+.rbc-day-bg:hover {
+  background: rgba(11, 61, 46, 0.05);
+}
+
+/* Today highlight */
+.rbc-today {
+  background: rgba(198, 161, 91, 0.15) !important;
+}
+
+/* Off-range days */
+.rbc-off-range-bg {
+  background: #f8fafc;
+}
+
+/* Date numbers */
+.rbc-date-cell {
+  padding: 4px;
+  color: #374151;
+}
+
+/* Events */
+.rbc-event {
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Event hover */
+.rbc-event:hover {
+  transform: scale(1.03);
+  opacity: 0.95;
+}
+
+/* Week/day view time slots */
+.rbc-time-slot {
+  font-size: 11px;
+}
+
+/* Time gutter */
+.rbc-time-gutter {
+  color: #6b7280;
+}
+
+/* Smooth scroll feel */
+.rbc-time-content {
+  scroll-behavior: smooth;
+}
+
+body.modal-open {
+  overflow: hidden;
 }

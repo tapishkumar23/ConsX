@@ -34,7 +34,6 @@ const columns: Status[] = [
 const CRMBoard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
 
-  // ✅ FETCH FROM SUPABASE
   const fetchLeads = async () => {
     const { data, error } = await supabase.from("leads").select("*");
 
@@ -56,16 +55,12 @@ const CRMBoard = () => {
   useEffect(() => {
     fetchLeads();
 
-    // ✅ REALTIME SUBSCRIPTION
     const channel = supabase
       .channel("realtime-leads")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "leads" },
-        (payload) => {
-          console.log("Realtime update:", payload);
-
-          // simplest + reliable approach
+        () => {
           fetchLeads();
         }
       )
@@ -76,7 +71,6 @@ const CRMBoard = () => {
     };
   }, []);
 
-  // ✅ UPDATE STATUS IN DB ALSO
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
 
@@ -84,14 +78,12 @@ const CRMBoard = () => {
 
     const newStatus = over.id as Status;
 
-    // update UI instantly
     setLeads((prev) =>
       prev.map((lead) =>
         lead.id === active.id ? { ...lead, status: newStatus } : lead
       )
     );
 
-    // update DB
     const { error } = await supabase
       .from("leads")
       .update({ status: newStatus })
@@ -102,7 +94,7 @@ const CRMBoard = () => {
 
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-6 gap-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 mt-6">
         {columns.map((col) => (
           <Column
             key={col}
@@ -121,10 +113,15 @@ const Column = ({ id, leads }: { id: string; leads: Lead[] }) => {
   const { setNodeRef } = useDroppable({ id });
 
   return (
-    <div ref={setNodeRef} className="bg-gray-100 p-3 rounded min-h-[300px]">
-      <h3 className="font-semibold capitalize mb-2">{id}</h3>
+    <div
+      ref={setNodeRef}
+      className="bg-white border border-gray-200 rounded-2xl p-4 min-h-[320px] shadow-sm hover:shadow-md transition"
+    >
+      <h3 className="font-semibold capitalize mb-4 text-[#0B3D2E]">
+        {id}
+      </h3>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {leads.map((lead) => (
           <Card key={lead.id} lead={lead} />
         ))}
@@ -150,10 +147,16 @@ const Card = ({ lead }: { lead: Lead }) => {
       {...listeners}
       {...attributes}
       style={style}
-      className="bg-white p-2 rounded shadow cursor-grab"
+      className="bg-white border border-gray-200 p-3 rounded-xl shadow-sm cursor-grab 
+      hover:shadow-md hover:bg-gray-50 transition-all duration-200 active:cursor-grabbing"
     >
-      <p className="font-medium">{lead.name}</p>
-      <p className="text-xs text-gray-500">{lead.company}</p>
+      <p className="font-semibold text-[#0B3D2E] text-sm">
+        {lead.name}
+      </p>
+
+      <p className="text-xs text-gray-500 mt-1">
+        {lead.company}
+      </p>
     </div>
   );
 };

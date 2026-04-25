@@ -25,7 +25,6 @@ const Tasks = () => {
   const [status, setStatus] = useState<Status>("todo");
   const [priority, setPriority] = useState<Priority>("medium");
 
-  // ✅ FETCH TASKS (FIXED)
   const fetchTasks = async () => {
     const { data, error } = await supabase
       .from("tasks")
@@ -37,7 +36,6 @@ const Tasks = () => {
       return;
     }
 
-    // ✅ Fix date format crash
     const formatted = (data || []).map((t) => ({
       ...t,
       deadline: t.deadline ? String(t.deadline) : "",
@@ -64,7 +62,6 @@ const Tasks = () => {
     if (!title) return;
 
     if (editingId) {
-      // ✅ UPDATE
       const { error } = await supabase
         .from("tasks")
         .update({
@@ -81,7 +78,6 @@ const Tasks = () => {
         return;
       }
     } else {
-      // ✅ INSERT (FIXED)
       const { error } = await supabase.from("tasks").insert([
         {
           title,
@@ -124,9 +120,9 @@ const Tasks = () => {
   };
 
   const getPriorityBadge = (priority: Priority) => {
-    if (priority === "high") return "bg-red-100 text-red-600";
-    if (priority === "medium") return "bg-yellow-100 text-yellow-600";
-    return "bg-gray-100 text-gray-600";
+    if (priority === "high") return "bg-red-100 text-red-600 border border-red-200";
+    if (priority === "medium") return "bg-yellow-100 text-yellow-700 border border-yellow-200";
+    return "bg-gray-100 text-gray-600 border border-gray-200";
   };
 
   const getStatusColor = (status: Status) => {
@@ -149,34 +145,39 @@ const Tasks = () => {
   return (
     <>
       {/* TASK PANEL */}
-      <div className="bg-white p-4 rounded-xl shadow mt-6">
+      <div className="bg-white p-5 rounded-2xl shadow-sm mt-6 border border-gray-200 transition hover:shadow-lg">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Tasks</h2>
+          <h2 className="text-lg font-semibold text-[#0B3D2E] tracking-wide">
+            Tasks
+          </h2>
 
           <button
             onClick={() => setShowForm(true)}
-            className="bg-blue-500 text-white px-3 py-1 rounded"
+            className="bg-black text-white px-4 py-2 rounded-lg hover:scale-105 hover:shadow-md transition-all duration-200"
           >
             + Add Task
           </button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {tasks.length === 0 && (
-            <p className="text-sm text-gray-500">No tasks yet</p>
+            <p className="text-sm text-gray-400">No tasks yet</p>
           )}
 
           {tasks.map((task) => (
             <div
               key={task.id}
               onClick={() => setSelectedTask(task)}
-              className="border p-3 rounded cursor-pointer hover:bg-gray-50"
+              className="border border-gray-200 p-4 rounded-xl cursor-pointer bg-white 
+              hover:border-[#C6A15B] hover:shadow-md transition-all duration-200 transform hover:-translate-y-1"
             >
               <div className="flex justify-between items-center">
-                <p className="font-medium">{task.title}</p>
+                <p className="font-semibold text-gray-800">
+                  {task.title}
+                </p>
 
                 <span
-                  className={`px-2 py-1 text-xs rounded ${getPriorityBadge(
+                  className={`px-2 py-1 text-xs rounded-full ${getPriorityBadge(
                     task.priority
                   )}`}
                 >
@@ -188,7 +189,7 @@ const Tasks = () => {
                 Status: {task.status}
               </p>
 
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-500 mt-1">
                 Deadline: {task.deadline || "N/A"} (
                 {getDeadlineStatus(task.deadline, task.status)})
               </p>
@@ -200,28 +201,28 @@ const Tasks = () => {
       {/* ADD / EDIT MODAL */}
       {showForm && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
           onClick={resetForm}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+          <div className="absolute inset-0 bg-black/40"></div>
 
           <div
-            className="relative bg-white p-6 rounded w-96 space-y-3 z-50"
+            className="relative bg-white p-6 rounded-2xl w-96 space-y-3 z-50 shadow-2xl animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-semibold">
+            <h3 className="font-semibold text-lg">
               {editingId ? "Edit Task" : "Add Task"}
             </h3>
 
             <input
-              className="border p-2 w-full"
+              className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B] outline-none"
               placeholder="Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
 
             <textarea
-              className="border p-2 w-full"
+              className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B] outline-none"
               placeholder="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -230,11 +231,9 @@ const Tasks = () => {
             <div>
               <label className="text-sm font-medium">Priority</label>
               <select
-                className="border p-2 w-full mt-1"
+                className="border p-2 w-full mt-1 rounded-lg"
                 value={priority}
-                onChange={(e) =>
-                  setPriority(e.target.value as Priority)
-                }
+                onChange={(e) => setPriority(e.target.value as Priority)}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -245,11 +244,9 @@ const Tasks = () => {
             <div>
               <label className="text-sm font-medium">Status</label>
               <select
-                className="border p-2 w-full mt-1"
+                className="border p-2 w-full mt-1 rounded-lg"
                 value={status}
-                onChange={(e) =>
-                  setStatus(e.target.value as Status)
-                }
+                onChange={(e) => setStatus(e.target.value as Status)}
               >
                 <option value="todo">To Do</option>
                 <option value="in-progress">In Progress</option>
@@ -261,23 +258,20 @@ const Tasks = () => {
               <label className="text-sm font-medium">Deadline</label>
               <input
                 type="date"
-                className="border p-2 w-full mt-1"
+                className="border p-2 w-full mt-1 rounded-lg"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
               />
             </div>
 
             <div className="flex justify-between">
-              <button
-                onClick={resetForm}
-                className="text-gray-500"
-              >
+              <button onClick={resetForm} className="text-gray-500">
                 Cancel
               </button>
 
               <button
                 onClick={handleSubmit}
-                className="bg-blue-500 text-white px-3 py-1 rounded"
+                className="bg-black text-white px-4 py-1 rounded-lg hover:scale-105 transition"
               >
                 Save
               </button>
@@ -289,30 +283,29 @@ const Tasks = () => {
       {/* DETAIL MODAL */}
       {selectedTask && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
           onClick={() => setSelectedTask(null)}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+          <div className="absolute inset-0 bg-black/40"></div>
 
           <div
-            className="relative bg-white p-6 rounded w-96 space-y-3 z-50"
+            className="relative bg-white p-6 rounded-2xl w-96 space-y-3 z-50 shadow-2xl animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold">
               {selectedTask.title}
             </h3>
 
-            <p>{selectedTask.description || "No description"}</p>
+            <p className="text-gray-600">
+              {selectedTask.description || "No description"}
+            </p>
 
             <p><strong>Priority:</strong> {selectedTask.priority}</p>
             <p><strong>Status:</strong> {selectedTask.status}</p>
             <p><strong>Deadline:</strong> {selectedTask.deadline || "N/A"}</p>
 
             <div className="flex justify-between mt-4">
-              <button
-                onClick={() => setSelectedTask(null)}
-                className="text-gray-500"
-              >
+              <button onClick={() => setSelectedTask(null)}>
                 Close
               </button>
 

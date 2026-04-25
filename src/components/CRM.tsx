@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../Supabase/supabase";
+import { createPortal } from "react-dom";
 
 type LeadStatus =
   | "new"
@@ -88,6 +89,21 @@ const CRM = () => {
   useEffect(() => {
     fetchLeads();
   }, []);
+
+  useEffect(() => {
+  const handleEsc = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setShowForm(false);
+      setSelectedLead(null);
+    }
+  };
+
+  window.addEventListener("keydown", handleEsc);
+
+  return () => {
+    window.removeEventListener("keydown", handleEsc);
+  };
+}, []);
 
   const handleSubmit = async () => {
     if (!name) return;
@@ -190,13 +206,13 @@ const CRM = () => {
 
   return (
     <>
-      <div className="bg-white p-4 rounded-xl shadow mt-6">
+      <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mt-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">CRM Leads</h2>
 
           <button
             onClick={() => setShowForm(true)}
-            className="bg-blue-500 text-white px-3 py-1 rounded"
+            className="bg-[#0B3D2E] text-white px-4 py-1.5 rounded-lg hover:opacity-90 transition"
           >
             + Add Lead
           </button>
@@ -210,7 +226,7 @@ const CRM = () => {
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className="border p-3 rounded cursor-pointer hover:bg-gray-50"
+              className="border border-gray-200 p-4 rounded-xl cursor-pointer hover:bg-gray-50 hover:shadow-sm transition-all duration-200"className="border p-3 rounded cursor-pointer hover:bg-gray-50"
               onClick={() => setSelectedLead(lead)}
             >
               <p className="font-medium">{lead.name}</p>
@@ -226,67 +242,97 @@ const CRM = () => {
         </div>
       </div>
 
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={resetForm}>
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
 
-          <div className="relative bg-white p-6 rounded w-96 space-y-2 z-50 max-h-[90vh] overflow-y-auto" onClick={(e)=>e.stopPropagation()}>
+{showForm &&
+  createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-md"
+      onClick={resetForm}
+    >
+      {/* DARK OVERLAY */}
+      <div className="absolute inset-0 bg-black/50"></div>
 
-            <h3>{editingId ? "Edit Lead" : "Add Lead"}</h3>
+      {/* CENTER WRAPPER */}
+      <div className="relative w-full max-w-lg mx-auto px-4">
 
-            <input className="border p-2 w-full" placeholder="Name" value={name} onChange={(e)=>setName(e.target.value)} />
-            <input className="border p-2 w-full" placeholder="Company" value={company} onChange={(e)=>setCompany(e.target.value)} />
-            <input className="border p-2 w-full" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
-            <input className="border p-2 w-full" placeholder="Phone" value={phone} onChange={(e)=>setPhone(e.target.value)} />
+        {/* MODAL CARD */}
+        <div
+         className="relative bg-white p-6 rounded-2xl w-full space-y-4 z-50 
+        shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 className="text-lg font-semibold text-[#0B3D2E]">
+            {editingId ? "Edit Lead" : "Add Lead"}
+          </h3>
 
-            <input className="border p-2 w-full" placeholder="Job Title" value={jobTitle} onChange={(e)=>setJobTitle(e.target.value)} />
-            <input className="border p-2 w-full" placeholder="Lead Source" value={source} onChange={(e)=>setSource(e.target.value)} />
-            <input className="border p-2 w-full" placeholder="Type of Lead" value={type} onChange={(e)=>setType(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Name" value={name} onChange={(e)=>setName(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Company" value={company} onChange={(e)=>setCompany(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Phone" value={phone} onChange={(e)=>setPhone(e.target.value)} />
 
-            <select value={priority} onChange={(e)=>setPriority(e.target.value as Priority)} className="border p-2 w-full">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Job Title" value={jobTitle} onChange={(e)=>setJobTitle(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Lead Source" value={source} onChange={(e)=>setSource(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Type of Lead" value={type} onChange={(e)=>setType(e.target.value)} />
 
-            {/* ✅ ADDED LABELS HERE */}
-            <div>
-              <p className="text-sm font-medium mb-1">Last Contacted</p>
-              <input
-                type="date"
-                className="border p-2 w-full"
-                value={lastContacted}
-                onChange={(e)=>setLastContacted(e.target.value)}
-              />
-            </div>
+          <select value={priority} onChange={(e)=>setPriority(e.target.value as Priority)} className="border p-2 w-full rounded-lg">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
 
-            <div>
-              <p className="text-sm font-medium mb-1">Next Follow-up</p>
-              <input
-                type="date"
-                className="border p-2 w-full"
-                value={nextFollowUp}
-                onChange={(e)=>setNextFollowUp(e.target.value)}
-              />
-            </div>
+          <div>
+            <p className="text-sm font-medium mb-1">Last Contacted</p>
+            <input type="date" className="border p-2 w-full rounded-lg" value={lastContacted} onChange={(e)=>setLastContacted(e.target.value)} />
+          </div>
 
-            <textarea className="border p-2 w-full" placeholder="Description" value={description} onChange={(e)=>setDescription(e.target.value)} />
+          <div>
+            <p className="text-sm font-medium mb-1">Next Follow-up</p>
+            <input type="date" className="border p-2 w-full rounded-lg" value={nextFollowUp} onChange={(e)=>setNextFollowUp(e.target.value)} />
+          </div>
 
-            <div className="flex justify-between">
-              <button onClick={resetForm}>Cancel</button>
-              <button onClick={handleSubmit} className="bg-blue-500 text-white px-3 py-1 rounded">Save</button>
-            </div>
+          <textarea className="border p-2 w-full rounded-lg" placeholder="Description" value={description} onChange={(e)=>setDescription(e.target.value)} />
 
+          <div className="flex justify-between mt-3">
+            <button onClick={resetForm} className="text-gray-500 hover:text-black">
+              Cancel
+            </button>
+
+            <button
+              onClick={handleSubmit}
+              className="bg-[#0B3D2E] text-white px-4 py-1 rounded-lg hover:scale-105 transition"
+            >
+              Save
+            </button>
           </div>
         </div>
-      )}
+      </div>
+    </div>,
+    document.body
+  )
+}
 
-      {selectedLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setSelectedLead(null)}>
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      {selectedLead &&
+  createPortal(
+    <div
+      className="fixed inset-0 z-[9999]"
+      onClick={() => setSelectedLead(null)}
+    >
+      {/* OVERLAY */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
 
-          <div className="relative bg-white p-6 rounded w-[400px] space-y-3 z-50" onClick={(e)=>e.stopPropagation()}>
-            <h3 className="text-lg font-semibold">{selectedLead.name}</h3>
+      {/* SCROLLABLE LAYER */}
+      <div className="absolute inset-0 overflow-y-auto">
+        <div className="min-h-full flex items-center justify-center p-4">
+
+          {/* MODAL CARD */}
+          <div
+            className="bg-white p-6 rounded-2xl w-full max-w-md space-y-3 
+            shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-[#0B3D2E]">
+              {selectedLead.name}
+            </h3>
 
             <p><strong>Company:</strong> {selectedLead.company}</p>
             <p><strong>Email:</strong> {selectedLead.email}</p>
@@ -305,24 +351,43 @@ const CRM = () => {
 
             <p className="text-sm text-gray-600">{selectedLead.description}</p>
 
-            <div className="flex justify-between mt-4"> 
+            <div className="flex justify-between mt-4">
               <button onClick={() => setSelectedLead(null)}>Close</button>
 
               <div className="flex gap-3">
-                <button onClick={() => { setSelectedLead(null); editLead(selectedLead); }}>
+                <button
+                  onClick={() => {
+                    setSelectedLead(null);
+                    editLead(selectedLead);
+                  }}
+                  className="text-blue-600"
+                >
                   Edit
                 </button>
 
-                <button onClick={() => { deleteLead(selectedLead.id); setSelectedLead(null); }}>
+                <button
+                  onClick={() => {
+                    deleteLead(selectedLead.id);
+                    setSelectedLead(null);
+                  }}
+                  className="text-red-600"
+                >
                   Delete
                 </button>
               </div>
             </div>
+
           </div>
         </div>
-      )}
+      </div>
+    </div>,
+    document.body
+  )
+  
+}
     </>
   );
 };
+
 
 export default CRM;
