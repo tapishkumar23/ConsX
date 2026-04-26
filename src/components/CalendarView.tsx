@@ -10,6 +10,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { supabase } from "../Supabase/supabase";
+import { useAuth } from "../pages/AuthContext";
 
 const locales = {
   "en-US": enUS,
@@ -29,6 +30,7 @@ type DBEvent = {
   start_time: string;
   end_time: string;
   type: "meeting" | "task" | "leave";
+  user_id: string;
 };
 
 type EventType = {
@@ -41,6 +43,7 @@ type EventType = {
 
 const CalendarView = () => {
   const [events, setEvents] = useState<EventType[]>([]);
+  const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventType | null>(null);
 
@@ -56,27 +59,33 @@ const CalendarView = () => {
 
   // FETCH EVENTS
   const fetchEvents = async () => {
-    const { data, error } = await supabase.from("events").select("*");
+  if (!user) return;
 
-    if (error || !data) {
-      console.error(error);
-      return;
-    }
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .eq("user_id", user.id);
 
-    const formatted: EventType[] = data.map((e: DBEvent) => ({
-      id: e.id,
-      title: e.title,
-      start: new Date(e.start_time),
-      end: new Date(e.end_time),
-      type: e.type,
-    }));
+  if (error || !data) {
+    console.error(error);
+    return;
+  }
 
-    setEvents(formatted);
-  };
+  const formatted: EventType[] = data.map((e: DBEvent) => ({
+    id: e.id,
+    title: e.title,
+    start: new Date(e.start_time),
+    end: new Date(e.end_time),
+    type: e.type,
+  }));
+
+  setEvents(formatted);
+};
 
   useEffect(() => {
-    fetchEvents();
-  }, []);
+  if (!user) return;
+  fetchEvents();
+}, [user?.id]);
 
   // SLOT SELECT
   const handleSelectSlot = (slotInfo: SlotInfo) => {
@@ -132,6 +141,7 @@ const CalendarView = () => {
           start_time: startDate,
           end_time: endDate,
           type: form.type,
+          user_id: user!.id,
         },
       ]);
     }
@@ -147,7 +157,7 @@ const CalendarView = () => {
     await supabase
       .from("events")
       .delete()
-      .eq("id", editingEvent.id);
+      .eq("id", editingEvent.id).eq("user_id", user?.id);
 
     setShowModal(false);
     fetchEvents();
