@@ -80,16 +80,13 @@ if (role === "employee") {
   query = query.eq("assigned_to", user.id);
 }
 
-if (role === "manager") {
-  const { data: employees } = await supabase
+else if (role === "manager") {
+  // manager sees ALL employee + own leads
+  const { data: users } = await supabase
     .from("users")
-    .select("id")
-    .eq("role", "employee");
+    .select("id");
 
-  const employeeIds = employees?.map((e) => e.id) || [];
-  const allIds = [user.id, ...employeeIds];
-
-  console.log("MANAGER VIEW IDS:", allIds);
+  const allIds = users?.map((u) => u.id) || [];
 
   query = query.in("assigned_to", allIds);
 }
