@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../Supabase/supabase";
 import { createPortal } from "react-dom";
+import { useAuth } from "../pages/AuthContext";
 
 type LeadStatus =
   | "new"
@@ -34,6 +35,7 @@ type Lead = {
 };
 
 const CRM = () => {
+  const { user, role } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -59,36 +61,59 @@ const CRM = () => {
     "LEAD-" + Math.floor(10000 + Math.random() * 90000);
 
   const fetchLeads = async () => {
-    const { data, error } = await supabase.from("leads").select("*");
+      console.log("USER:", user?.id);
+      console.log("ROLE:", role);
+      if (!user) return;
 
-    if (error || !data) {
-      console.error("FETCH ERROR:", error);
-      return;
-    }
+let query = supabase.from("leads").select("*");
+  // ✅ ROLE-BASED FILTER
 
-    const formatted = data.map((l: any) => ({
-      id: l.id,
-      leadId: l.lead_id,
-      name: l.name,
-      company: l.company,
-      email: l.email,
-      phone: l.phone,
-      status: l.status,
-      priority: l.priority,
-      type: l.type,
-      source: l.source,
-      jobTitle: l.job_title,
-      lastContacted: l.last_contacted || "",
-      nextFollowUp: l.next_follow_up || "",
-      description: l.description,
-    }));
+if (role === "employee") {
+  query = query.eq("assigned_to", user.id);
+}
 
-    setLeads(formatted);
+if (role === "manager") {
+  query = query.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`);
+}
+
+if (role === "ceo") {
+  // no filter
+}
+
+  const { data, error } = await query;
+  console.log("RAW DATA:", data);
+
+  if (error || !data) {
+    console.error("FETCH ERROR:", error);
+    return;
+  }
+
+  const formatted = data.map((l: any) => ({
+    id: l.id,
+    leadId: l.lead_id,
+    name: l.name,
+    company: l.company,
+    email: l.email,
+    phone: l.phone,
+    status: l.status,
+    priority: l.priority,
+    type: l.type,
+    source: l.source,
+    jobTitle: l.job_title,
+    lastContacted: l.last_contacted || "",
+    nextFollowUp: l.next_follow_up || "",
+    description: l.description,
+  }));
+
+  setLeads(formatted);
+
   };
 
   useEffect(() => {
+  if (user && role) {
     fetchLeads();
-  }, []);
+  }
+}, [user, role]);
 
   useEffect(() => {
   const handleEsc = (e: KeyboardEvent) => {
@@ -144,6 +169,8 @@ const CRM = () => {
           last_contacted: lastContacted || null,
           next_follow_up: nextFollowUp || null,
           description,
+          assigned_to: user?.id,
+          created_by: user?.id,
         },
       ]);
 

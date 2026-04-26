@@ -6,6 +6,7 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import { supabase } from "../Supabase/supabase";
+import { useAuth } from "../pages/AuthContext";
 
 type Status =
   | "new"
@@ -33,9 +34,24 @@ const columns: Status[] = [
 
 const CRMBoard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const { user, role } = useAuth();
 
   const fetchLeads = async () => {
-    const { data, error } = await supabase.from("leads").select("*");
+    if (!user) return;
+
+let query = supabase.from("leads").select("*");
+
+if (role === "employee") {
+  query = query.eq("assigned_to", user.id);
+}
+
+else if (role === "manager") {
+  query = query.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`);
+}
+
+// CEO → no filter
+
+const { data, error } = await query;
 
     if (error || !data) {
       console.error(error);
@@ -52,24 +68,28 @@ const CRMBoard = () => {
     setLeads(formatted);
   };
 
-  useEffect(() => {
-    fetchLeads();
+useEffect(() => {
+  if (!user || !role) return;
 
-    const channel = supabase
-      .channel("realtime-leads")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "leads" },
-        () => {
-          fetchLeads();
-        }
-      )
-      .subscribe();
+  fetchLeads();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  const channel = supabase.channel("realtime-leads");
+
+  channel.on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "leads" },
+    () => {
+      fetchLeads();
+    }
+  );
+
+  channel.subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [user?.id, role]);
+
 
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
