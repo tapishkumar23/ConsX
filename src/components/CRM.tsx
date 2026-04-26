@@ -68,13 +68,6 @@ const CRM = () => {
 let query = supabase.from("leads").select("*");
   
 
-if (role === "manager") {
-  const { data: team } = await supabase
-    .from("users")
-    .select("id")
-    .eq("manager_id", user.id);
-
-}
 
 if (role === "employee") {
   query = query.eq("assigned_to", user.id);
@@ -91,7 +84,7 @@ else if (role === "manager") {
   query = query.in("assigned_to", allIds);
 }
 
-if (role === "ceo") {
+else if (role === "ceo") {
   // no filter
 }
 
