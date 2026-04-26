@@ -32,6 +32,7 @@ type Lead = {
   nextFollowUp: string;
 
   description: string;
+  createdByName?: string;
 };
 
 const CRM = () => {
@@ -90,6 +91,7 @@ const { data, error } = await supabase
     lastContacted: l.last_contacted || "",
     nextFollowUp: l.next_follow_up || "",
     description: l.description,
+    createdByName: l.created_by_name,
   }));
 
   setLeads(formatted);
@@ -119,6 +121,11 @@ const { data, error } = await supabase
 
   const handleSubmit = async () => {
     if (!name) return;
+    const { data: userData } = await supabase
+  .from("users")
+  .select("name")
+  .eq("id", user?.id)
+  .single();
 
     if (editingId) {
       
@@ -136,7 +143,10 @@ const { data, error } = await supabase
           job_title: jobTitle,
           last_contacted: lastContacted || null,
           next_follow_up: nextFollowUp || null,
-          description, 
+          description,
+          assigned_to: user?.id, 
+          created_by: user?.id, 
+          created_by_name: userData?.name || user?.email,
         })
         .eq("id", editingId);
 
@@ -159,6 +169,7 @@ const { data, error } = await supabase
           description,
           assigned_to: user?.id,
           created_by: user?.id,
+          created_by_name: userData?.name || user?.email,
         },
       ]);
 
@@ -248,6 +259,9 @@ const { data, error } = await supabase
               <p className="text-sm text-gray-600">{lead.company}</p>
               <p className="text-xs">📞 {lead.phone}</p>
               <p className="text-xs">ID: {lead.leadId}</p>
+              <p className="text-xs text-gray-500">
+                Added by: {lead.createdByName || "Unknown"}
+              </p>
 
               <p className="text-xs mt-1">
                 Follow-up: {getFollowUpStatus(lead.nextFollowUp)}
@@ -356,6 +370,7 @@ const { data, error } = await supabase
 
             <p><strong>Status:</strong> {selectedLead.status}</p>
             <p><strong>Priority:</strong> {selectedLead.priority}</p>
+            <p><strong>Added By:</strong> {selectedLead.createdByName || "Unknown"}</p>
 
             <p><strong>Job Title:</strong> {selectedLead.jobTitle}</p>
             <p><strong>Source:</strong> {selectedLead.source}</p>
