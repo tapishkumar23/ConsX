@@ -36,7 +36,7 @@ const Dashboard = () => {
 
             {/* 🔥 IMPORTANT: remove card feel from Tasks */}
             <div className="space-y-4">
-              <Tasks isCompact /> 
+              <Tasks /> 
             </div>
 
           </section>

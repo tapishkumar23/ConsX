@@ -66,7 +66,7 @@ const CRM = () => {
       if (!user) return;
 
 let query = supabase.from("leads").select("*");
-  let teamUserIds: string[] = [];
+  
 
 if (role === "manager") {
   const { data: team } = await supabase
@@ -74,7 +74,6 @@ if (role === "manager") {
     .select("id")
     .eq("manager_id", user.id);
 
-  teamUserIds = team?.map((u) => u.id) || [];
 }
 
 if (role === "employee") {
@@ -82,16 +81,15 @@ if (role === "employee") {
 }
 
 if (role === "manager") {
-  // Step 1: get all employees
   const { data: employees } = await supabase
     .from("users")
     .select("id")
     .eq("role", "employee");
 
   const employeeIds = employees?.map((e) => e.id) || [];
-
-  // Step 2: include manager + all employees
   const allIds = [user.id, ...employeeIds];
+
+  console.log("MANAGER VIEW IDS:", allIds);
 
   query = query.in("assigned_to", allIds);
 }
@@ -273,7 +271,7 @@ if (role === "ceo") {
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className="border border-gray-200 p-4 rounded-xl cursor-pointer hover:bg-gray-50 hover:shadow-sm transition-all duration-200"className="border p-3 rounded cursor-pointer hover:bg-gray-50"
+              className="border border-gray-200 p-4 rounded-xl cursor-pointer hover:bg-gray-50 hover:shadow-sm transition-all duration-200"
               onClick={() => setSelectedLead(lead)}
             >
               <p className="font-medium">{lead.name}</p>
