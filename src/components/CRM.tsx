@@ -82,7 +82,17 @@ if (role === "employee") {
 }
 
 if (role === "manager") {
-  const allIds = [user.id, ...teamUserIds];
+  // Step 1: get all employees
+  const { data: employees } = await supabase
+    .from("users")
+    .select("id")
+    .eq("role", "employee");
+
+  const employeeIds = employees?.map((e) => e.id) || [];
+
+  // Step 2: include manager + all employees
+  const allIds = [user.id, ...employeeIds];
+
   query = query.in("assigned_to", allIds);
 }
 
