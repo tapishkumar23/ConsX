@@ -66,14 +66,24 @@ const CRM = () => {
       if (!user) return;
 
 let query = supabase.from("leads").select("*");
-  // ✅ ROLE-BASED FILTER
+  let teamUserIds: string[] = [];
+
+if (role === "manager") {
+  const { data: team } = await supabase
+    .from("users")
+    .select("id")
+    .eq("manager_id", user.id);
+
+  teamUserIds = team?.map((u) => u.id) || [];
+}
 
 if (role === "employee") {
   query = query.eq("assigned_to", user.id);
 }
 
 if (role === "manager") {
-  query = query.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`);
+  const allIds = [user.id, ...teamUserIds];
+  query = query.in("assigned_to", allIds);
 }
 
 if (role === "ceo") {
