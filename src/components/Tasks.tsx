@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../Supabase/supabase";
+import { useAuth } from "../pages/AuthContext";
 
 type Status = "todo" | "in-progress" | "done";
 type Priority = "low" | "medium" | "high";
@@ -15,6 +16,7 @@ type Task = {
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -26,11 +28,13 @@ const Tasks = () => {
   const [priority, setPriority] = useState<Priority>("medium");
 
   const fetchTasks = async () => {
-    const { data, error } = await supabase
-      .from("tasks")
-      .select("*")
-      .order("id", { ascending: false });
+    if (!user) return;
 
+  const { data, error } = await supabase
+  .from("tasks")
+  .select("*")
+  .eq("user_id", user.id) // 🔥 FILTER HERE
+  .order("id", { ascending: false });
     if (error) {
       console.error("FETCH ERROR:", error.message);
       return;
@@ -71,22 +75,24 @@ const Tasks = () => {
           status,
           priority,
         })
-        .eq("id", editingId);
+        .eq("id", editingId)
+        .eq("user_id", user?.id);
 
       if (error) {
         console.error("UPDATE ERROR:", error.message);
         return;
       }
     } else {
-      const { error } = await supabase.from("tasks").insert([
-        {
-          title,
-          description,
-          deadline: deadline || null,
-          status,
-          priority,
-        },
-      ]);
+     const { error } = await supabase.from("tasks").insert([
+  {
+    title,
+    description,
+    deadline: deadline || null,
+    status,
+    priority,
+    user_id: user?.id, // 🔥 ADD THIS LINE
+  },
+]);
 
       if (error) {
         console.error("INSERT ERROR:", error.message);
@@ -99,7 +105,7 @@ const Tasks = () => {
   };
 
   const deleteTask = async (id: number) => {
-    const { error } = await supabase.from("tasks").delete().eq("id", id);
+    const { error } = await supabase.from("tasks").delete().eq("id", id).eq("user_id", user?.id);
 
     if (error) {
       console.error("DELETE ERROR:", error.message);
