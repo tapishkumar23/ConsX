@@ -56,6 +56,29 @@ const CalendarView = () => {
     start: "",
     end: "",
   });
+  
+  const fetchUSHolidays = async (year: number) => {
+    try {
+      const res = await fetch(
+        `https://date.nager.at/api/v3/PublicHolidays/${year}/US`
+      );
+      const data = await res.json();
+
+      const holidays: EventType[] = data.map((h: any) => ({
+        id: `holiday-${h.date}`,
+        title: `🇺🇸 ${h.localName}`,
+        start: new Date(h.date),
+        end: new Date(h.date),
+        type: "leave",
+      }));
+
+      return holidays;
+    } catch (err) {
+      console.error("Holiday fetch error:", err);
+      return [];
+    }
+  };
+
 
   // FETCH EVENTS
   const fetchEvents = async () => {
@@ -79,13 +102,14 @@ const CalendarView = () => {
     type: e.type,
   }));
 
-  setEvents(formatted);
+  const holidays = await fetchUSHolidays(currentDate.getFullYear());
+  setEvents([...formatted, ...holidays]);
 };
 
   useEffect(() => {
   if (!user) return;
   fetchEvents();
-}, [user?.id]);
+}, [user?.id, currentDate]);
 
   // SLOT SELECT
   const handleSelectSlot = (slotInfo: SlotInfo) => {
