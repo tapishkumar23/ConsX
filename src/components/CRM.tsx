@@ -65,30 +65,9 @@ const CRM = () => {
       console.log("ROLE:", role);
       if (!user) return;
 
-let query = supabase.from("leads").select("*");
-  
-
-
-if (role === "employee") {
-  query = query.eq("assigned_to", user.id);
-}
-
-else if (role === "manager") {
-  // manager sees ALL employee + own leads
-  const { data: users } = await supabase
-    .from("users")
-    .select("id");
-
-  const allIds = users?.map((u) => u.id) || [];
-
-  query = query.in("assigned_to", allIds);
-}
-
-else if (role === "ceo") {
-  // no filter
-}
-
-  const { data, error } = await query;
+const { data, error } = await supabase
+  .from("leads")
+  .select("*");
   console.log("RAW DATA:", data);
 
   if (error || !data) {
@@ -142,6 +121,7 @@ else if (role === "ceo") {
     if (!name) return;
 
     if (editingId) {
+      
       const { error } = await supabase
         .from("leads")
         .update({
@@ -156,7 +136,7 @@ else if (role === "ceo") {
           job_title: jobTitle,
           last_contacted: lastContacted || null,
           next_follow_up: nextFollowUp || null,
-          description,
+          description, 
         })
         .eq("id", editingId);
 

@@ -36,37 +36,27 @@ const CRMBoard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const { user, role } = useAuth();
 
-  const fetchLeads = async () => {
-    if (!user) return;
+const fetchLeads = async () => {
+  if (!user) return;
 
-let query = supabase.from("leads").select("*");
+  const { data, error } = await supabase
+    .from("leads")
+    .select("*");
 
-if (role === "employee") {
-  query = query.eq("assigned_to", user.id);
-}
+  if (error || !data) {
+    console.error(error);
+    return;
+  }
 
-else if (role === "manager") {
-  query = query.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`);
-}
+  const formatted = data.map((l: any) => ({
+    id: l.id,
+    name: l.name,
+    company: l.company,
+    status: (l.status || "new").toLowerCase(), // 🔥 important
+  }));
 
-// CEO → no filter
-
-const { data, error } = await query;
-
-    if (error || !data) {
-      console.error(error);
-      return;
-    }
-
-    const formatted = data.map((l: any) => ({
-      id: l.id,
-      name: l.name,
-      company: l.company,
-      status: l.status,
-    }));
-
-    setLeads(formatted);
-  };
+  setLeads(formatted);
+};
 
 useEffect(() => {
   if (!user || !role) return;
