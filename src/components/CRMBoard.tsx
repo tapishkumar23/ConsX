@@ -125,9 +125,9 @@ const Column = ({ id, leads }: { id: string; leads: Lead[] }) => {
   return (
     <div
       ref={setNodeRef}
-      className="bg-white border border-gray-200 rounded-2xl p-4 min-h-[320px] shadow-sm hover:shadow-md transition"
+      className="bg-gray-50 border border-gray-200 rounded-2xl p-4 min-h-[320px] shadow-sm hover:shadow-md transition"
     >
-      <h3 className="font-semibold capitalize mb-4 text-[#0B3D2E]">
+      <h3 className="font-semibold capitalize mb-4 text-gray-900 text-sm tracking-wide">
         {id}
       </h3>
 
@@ -158,9 +158,9 @@ const Card = ({ lead }: { lead: Lead }) => {
       {...attributes}
       style={style}
       className="bg-white border border-gray-200 p-3 rounded-xl shadow-sm cursor-grab 
-      hover:shadow-md hover:bg-gray-50 transition-all duration-200 active:cursor-grabbing"
+      hover:shadow-md hover:bg-gray-100 transition-all duration-200 active:cursor-grabbing"
     >
-      <p className="font-semibold text-[#0B3D2E] text-sm">
+      <p className="font-semibold text-gray-900 text-sm">
         {lead.name}
       </p>
 

@@ -7,7 +7,7 @@ import CRMBoard from "../components/CRMBoard";
 const Dashboard = () => {
   return (
     <Layout>
-      <div className="p-6 min-h-screen space-y-8 bg-gradient-to-br from-[#F8FAF9] via-[#EDF4F1] to-[#E8F0ED]">
+      <div className="p-6 min-h-screen space-y-8 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-200 ">
 
         {/* TOP GRID */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

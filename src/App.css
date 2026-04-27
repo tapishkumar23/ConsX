@@ -182,3 +182,21 @@
     border-right-color: var(--border);
   }
 }
+
+/* DARK MODE ROOT */
+.dark {
+  --background: #0b0b0b;
+  --surface: #111111;
+  --border: #2a2a2a;
+
+  --text-h: #ffffff;
+  --text: #d1d5db;
+  --text-muted: #9ca3af;
+
+  --accent: #ffffff;
+  --accent-bg: #1f1f1f;
+  --accent-border: #3f3f3f;
+
+  --social-bg: #1f1f1f;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
