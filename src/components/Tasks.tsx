@@ -12,11 +12,13 @@ type Task = {
   deadline: string;
   status: Status;
   priority: Priority;
+  user_id: string; // creator
+  assigned_to: string | null; // ✅ new field
 };
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -27,14 +29,54 @@ const Tasks = () => {
   const [status, setStatus] = useState<Status>("todo");
   const [priority, setPriority] = useState<Priority>("medium");
 
-  const fetchTasks = async () => {
-    if (!user) return;
+  const [assignedTo, setAssignedTo] = useState<string>(""); // ✅ new
+  const [assignableUsers, setAssignableUsers] = useState<{ id: string; email: string }[]>([]); // ✅ new
 
-  const { data, error } = await supabase
-  .from("tasks")
-  .select("*")
-  .eq("user_id", user.id) // 🔥 FILTER HERE
-  .order("id", { ascending: false });
+  /* ✅ Fetch assignable users based on role */
+  const fetchAssignableUsers = async () => {
+    if (!user || !role) return;
+
+    let query = supabase.from("users").select("id, email, role, name");
+
+    if (role === "ceo") {
+      query = query.in("role", ["manager", "ceo"]);
+    } else if (role === "manager") {
+      query = query.in("role", ["employee", "manager"]);
+    } else {
+      // employee cannot assign
+      query = query.eq("id", user.id);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error("ASSIGNABLE USERS ERROR:", error.message);
+      return;
+    }
+
+    setAssignableUsers(
+      (data || []).map((u) => ({ id: u.id, email: u.email }))
+    );
+  };
+
+  /* ✅ Fetch tasks based on role */
+  const fetchTasks = async () => {
+    if (!user || !role) return;
+
+    let query = supabase.from("tasks").select("*").order("id", { ascending: false });
+
+    if (role === "ceo") {
+      // ceo can see all tasks
+    } else if (role === "manager") {
+      // manager sees tasks created by her or assigned to her
+      query = query.or(`user_id.eq.${user.id},assigned_to.eq.${user.id}`);
+    } else if (role === "employee") {
+      // employee sees tasks assigned to him
+      query = query.eq("assigned_to", user.id);
+    } else {
+      query = query.eq("user_id", user.id);
+    }
+
+    const { data, error } = await query;
     if (error) {
       console.error("FETCH ERROR:", error.message);
       return;
@@ -50,7 +92,8 @@ const Tasks = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+    fetchAssignableUsers(); // load assignable users for form
+  }, [role]);
 
   const resetForm = () => {
     setTitle("");
@@ -60,10 +103,11 @@ const Tasks = () => {
     setPriority("medium");
     setEditingId(null);
     setShowForm(false);
+    setAssignedTo("");
   };
 
   const handleSubmit = async () => {
-    if (!title) return;
+    if (!title || !user) return;
 
     if (editingId) {
       const { error } = await supabase
@@ -74,25 +118,26 @@ const Tasks = () => {
           deadline: deadline || null,
           status,
           priority,
+          assigned_to: assignedTo || null, // ✅ updated
         })
-        .eq("id", editingId)
-        .eq("user_id", user?.id);
+        .eq("id", editingId);
 
       if (error) {
         console.error("UPDATE ERROR:", error.message);
         return;
       }
     } else {
-     const { error } = await supabase.from("tasks").insert([
-  {
-    title,
-    description,
-    deadline: deadline || null,
-    status,
-    priority,
-    user_id: user?.id, // 🔥 ADD THIS LINE
-  },
-]);
+      const { error } = await supabase.from("tasks").insert([
+        {
+          title,
+          description,
+          deadline: deadline || null,
+          status,
+          priority,
+          user_id: user.id,
+          assigned_to: assignedTo || null, // ✅ new
+        },
+      ]);
 
       if (error) {
         console.error("INSERT ERROR:", error.message);
@@ -105,13 +150,11 @@ const Tasks = () => {
   };
 
   const deleteTask = async (id: number) => {
-    const { error } = await supabase.from("tasks").delete().eq("id", id).eq("user_id", user?.id);
-
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
     if (error) {
       console.error("DELETE ERROR:", error.message);
       return;
     }
-
     fetchTasks();
   };
 
@@ -122,6 +165,7 @@ const Tasks = () => {
     setStatus(task.status);
     setPriority(task.priority);
     setEditingId(task.id);
+    setAssignedTo(task.assigned_to || "");
     setShowForm(true);
   };
 
@@ -157,12 +201,14 @@ const Tasks = () => {
             Tasks
           </h2>
 
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-black text-white px-4 py-2 rounded-lg hover:scale-105 hover:shadow-md transition-all duration-200"
-          >
-            + Add Task
-          </button>
+          {(role === "ceo" || role === "manager") && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="bg-black text-white px-4 py-2 rounded-lg hover:scale-105 hover:shadow-md transition-all duration-200"
+            >
+              + Add Task
+            </button>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -178,10 +224,7 @@ const Tasks = () => {
               hover:border-[#C6A15B] hover:shadow-md transition-all duration-200 transform hover:-translate-y-1"
             >
               <div className="flex justify-between items-center">
-                <p className="font-semibold text-gray-800">
-                  {task.title}
-                </p>
-
+                <p className="font-semibold text-gray-800">{task.title}</p>
                 <span
                   className={`px-2 py-1 text-xs rounded-full ${getPriorityBadge(
                     task.priority
@@ -199,6 +242,12 @@ const Tasks = () => {
                 Deadline: {task.deadline || "N/A"} (
                 {getDeadlineStatus(task.deadline, task.status)})
               </p>
+
+              {task.assigned_to && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Assigned To: {task.assigned_to}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -270,6 +319,24 @@ const Tasks = () => {
               />
             </div>
 
+            {(role === "ceo" || role === "manager") && (
+              <div>
+                <label className="text-sm font-medium">Assign To</label>
+                <select
+                  className="border p-2 w-full mt-1 rounded-lg"
+                  value={assignedTo}
+                  onChange={(e) => setAssignedTo(e.target.value)}
+                >
+                  <option value="">Select User</option>
+                  {assignableUsers.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex justify-between">
               <button onClick={resetForm} className="text-gray-500">
                 Cancel
@@ -298,9 +365,7 @@ const Tasks = () => {
             className="relative bg-white p-6 rounded-2xl w-96 space-y-3 z-50 shadow-2xl animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold">
-              {selectedTask.title}
-            </h3>
+            <h3 className="text-lg font-semibold">{selectedTask.title}</h3>
 
             <p className="text-gray-600">
               {selectedTask.description || "No description"}
@@ -309,33 +374,37 @@ const Tasks = () => {
             <p><strong>Priority:</strong> {selectedTask.priority}</p>
             <p><strong>Status:</strong> {selectedTask.status}</p>
             <p><strong>Deadline:</strong> {selectedTask.deadline || "N/A"}</p>
+            {selectedTask.assigned_to && (
+              <p><strong>Assigned To:</strong> {selectedTask.assigned_to}</p>
+            )}
 
             <div className="flex justify-between mt-4">
-              <button onClick={() => setSelectedTask(null)}>
-                Close
-              </button>
+              <button onClick={() => setSelectedTask(null)}>Close</button>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setSelectedTask(null);
-                    editTask(selectedTask);
-                  }}
-                  className="text-blue-600"
-                >
-                  Edit
-                </button>
+              {(role === "ceo" ||
+                (role === "manager" && selectedTask.user_id === user?.id)) && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setSelectedTask(null);
+                      editTask(selectedTask);
+                    }}
+                    className="text-blue-600"
+                  >
+                    Edit
+                  </button>
 
-                <button
-                  onClick={() => {
-                    deleteTask(selectedTask.id);
-                    setSelectedTask(null);
-                  }}
-                  className="text-red-600"
-                >
-                  Delete
-                </button>
-              </div>
+                  <button
+                    onClick={() => {
+                      deleteTask(selectedTask.id);
+                      setSelectedTask(null);
+                    }}
+                    className="text-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
