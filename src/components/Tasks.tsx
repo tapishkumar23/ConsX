@@ -17,6 +17,7 @@ type Task = {
   assigned_user?: {
     name: string;
   };
+  attachment_url?: string | null;
 };
 
 const Tasks = () => {
@@ -25,6 +26,7 @@ const Tasks = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -114,57 +116,84 @@ const Tasks = () => {
     setAssignedTo("");
   };
 
-  const handleSubmit = async () => {
-    if (!title || !user) return;
+  // ✅ CREATE / UPDATE TASK (WITH ATTACHMENT)
+const handleSubmit = async () => {
+  if (!title || !user) return;
 
-    if (editingId) {
-      const { error } = await supabase
-        .from("tasks")
-        .update({
-          title,
-          description,
-          deadline: deadline || null,
-          status,
-          priority,
-          assigned_to: assignedTo || null, // ✅ updated
-        })
-        .eq("id", editingId);
+  let fileUrl = null;
 
-      if (error) {
-        console.error("UPDATE ERROR:", error.message);
-        return;
-      }
-    } else {
-      const { error } = await supabase.from("tasks").insert([
-        {
-          title,
-          description,
-          deadline: deadline || null,
-          status,
-          priority,
-          user_id: user.id,
-          assigned_to: assignedTo || null, // ✅ new
-        },
-      ]);
+  // 📎 Upload file
+  if (file) {
+    const fileName = `${Date.now()}-${file.name}`;
 
-      if (assignedTo && assignedTo !== user.id) {
-        await supabase.from("notifications").insert([
-          {
-            user_id: assignedTo,
-            message: `Task "${title}" has been assigned to you`,
-          },
-        ]);
-      }
+    const { error: uploadError } = await supabase.storage
+      .from("task-attachments")
+      .upload(fileName, file);
 
-      if (error) {
-        console.error("INSERT ERROR:", error.message);
-        return;
-      }
+    if (uploadError) {
+      console.error("FILE UPLOAD ERROR:", uploadError.message);
+      return;
     }
 
-    await fetchTasks();
-    resetForm();
-  };
+    const { data: publicUrlData } = supabase.storage
+      .from("task-attachments")
+      .getPublicUrl(fileName);
+
+    fileUrl = publicUrlData.publicUrl;
+  }
+
+  if (editingId) {
+    const { error } = await supabase
+      .from("tasks")
+      .update({
+        title,
+        description,
+        deadline: deadline || null,
+        status,
+        priority,
+        assigned_to: assignedTo || null,
+        attachment_url: fileUrl,
+      })
+      .eq("id", editingId);
+
+    if (error) {
+      console.error("UPDATE ERROR:", error.message);
+      return;
+    }
+  } else {
+    const { error } = await supabase.from("tasks").insert([
+      {
+        title,
+        description,
+        deadline: deadline || null,
+        status,
+        priority,
+        user_id: user.id,
+        assigned_to: assignedTo || null,
+        attachment_url: fileUrl,
+      },
+    ]);
+
+    if (error) {
+      console.error("INSERT ERROR:", error.message);
+      return;
+    }
+
+    // 🔔 Notification
+    if (assignedTo && assignedTo !== user.id) {
+      await supabase.from("notifications").insert([
+        {
+          user_id: assignedTo,
+          message: `Task "${title}" has been assigned to you`,
+        },
+      ]);
+    }
+  }
+
+  await fetchTasks();
+  resetForm();
+  setFile(null);
+};
 
   const deleteTask = async (id: number) => {
     const { error } = await supabase.from("tasks").delete().eq("id", id);
@@ -354,6 +383,12 @@ const Tasks = () => {
               </div>
             )}
 
+            <input
+            type="file"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="border p-2 w-full rounded-lg"
+          />
+
             <div className="flex justify-between">
               <button onClick={resetForm} className="text-gray-500">
                 Cancel
@@ -393,6 +428,16 @@ const Tasks = () => {
             <p><strong>Deadline:</strong> {selectedTask.deadline || "N/A"}</p>
             {selectedTask.assigned_to && (
               <p><strong>Assigned To:</strong> {selectedTask.assigned_to}</p>
+            )}
+            {selectedTask.attachment_url && (
+              <a
+                href={selectedTask.attachment_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 text-sm underline"
+              >
+                View Attachment
+              </a>
             )}
 
             <div className="flex justify-between mt-4">
