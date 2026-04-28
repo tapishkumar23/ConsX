@@ -147,6 +147,15 @@ const Tasks = () => {
         },
       ]);
 
+      if (assignedTo && assignedTo !== user.id) {
+        await supabase.from("notifications").insert([
+          {
+            user_id: assignedTo,
+            message: `Task "${title}" has been assigned to you`,
+          },
+        ]);
+      }
+
       if (error) {
         console.error("INSERT ERROR:", error.message);
         return;
