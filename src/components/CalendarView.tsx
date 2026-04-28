@@ -11,7 +11,6 @@ import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { supabase } from "../Supabase/supabase";
 import { useAuth } from "../pages/AuthContext";
-import ICAL from "ical.js";
 
 const locales = {
   "en-US": enUS,
@@ -110,7 +109,6 @@ const CalendarView = () => {
     return [];
   }
 };
-  
   const getCountryByRole = (role: string) => {
   switch (role) {
     case "backend_employee":
@@ -157,11 +155,12 @@ const role = userData?.role || "employee";
 // 👉 map role → country
 let holidays: EventType[] = [];
 
-if (role === "backend_employee") {
+const country = getCountryByRole(role);
+
+if (country === "IN") {
   holidays = await fetchIndianHolidays(currentDate.getFullYear());
 } else {
   holidays = await fetchUSHolidays(currentDate.getFullYear());
-
 }
     setEvents([...formatted, ...holidays]);
     console.log("USER DATA:", userData);
