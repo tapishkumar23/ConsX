@@ -14,6 +14,16 @@ type ProjectType = {
   title: string;
   description: string;
   attachment_url?: string;
+  assigned_to: string;
+  assigned_by: string;
+  created_at: string;
+  assigned_to_user?: {
+    name: string;
+  };
+
+  assigned_by_user?: {
+    name: string;
+  };
 };
 
 const AssignProject = ({ role, user }: any) => {
