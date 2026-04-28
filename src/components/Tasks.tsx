@@ -14,6 +14,9 @@ type Task = {
   priority: Priority;
   user_id: string; // creator
   assigned_to: string | null; // ✅ new field
+  assigned_user?: {
+    name: string;
+  };
 };
 
 const Tasks = () => {
@@ -34,35 +37,40 @@ const Tasks = () => {
 
   /* ✅ Fetch assignable users based on role */
   const fetchAssignableUsers = async () => {
-    if (!user || !role) return;
+  if (!user || !role) return;
 
-    let query = supabase.from("users").select("id, email, role, name");
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, email, role, name");
 
-    if (role === "ceo") {
-      query = query.in("role", ["manager", "ceo"]);
-    } else if (role === "manager") {
-      query = query.in("role", ["employee", "manager"]);
-    } else {
-      // employee cannot assign
-      query = query.eq("id", user.id);
-    }
+  if (error) {
+    console.error("ASSIGNABLE USERS ERROR:", error.message);
+    return;
+  }
 
-    const { data, error } = await query;
-    if (error) {
-      console.error("ASSIGNABLE USERS ERROR:", error.message);
-      return;
-    }
+  let filteredUsers = [];
 
-    setAssignableUsers(
-      (data || []).map((u) => ({ id: u.id, email: u.email }))
+  if (role === "ceo") {
+    filteredUsers = data.filter(
+      (u) => u.role === "manager" || u.id === user.id
     );
-  };
+  } else if (role === "manager") {
+    filteredUsers = data.filter(
+      (u) => u.role === "employee" || u.id === user.id
+    );
+  } else {
+    // employee → only themselves
+    filteredUsers = data.filter((u) => u.id === user.id);
+  }
+
+  setAssignableUsers(filteredUsers);
+};
 
   /* ✅ Fetch tasks based on role */
   const fetchTasks = async () => {
     if (!user || !role) return;
 
-    let query = supabase.from("tasks").select("*").order("id", { ascending: false });
+    let query = supabase.from("tasks").select("*, assigned_user:users!tasks_assigned_to_fkey(name)").order("id", { ascending: false });
 
     if (role === "ceo") {
       // ceo can see all tasks
@@ -201,7 +209,7 @@ const Tasks = () => {
             Tasks
           </h2>
 
-          {(role === "ceo" || role === "manager") && (
+          {(role === "ceo" || role === "manager" || role === "employee") && (
             <button
               onClick={() => setShowForm(true)}
               className="bg-black text-white px-4 py-2 rounded-lg hover:scale-105 hover:shadow-md transition-all duration-200"
@@ -245,7 +253,7 @@ const Tasks = () => {
 
               {task.assigned_to && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Assigned To: {task.assigned_to}
+                  Assigned To: {task.assigned_user?.name || "Unassigned"}
                 </p>
               )}
             </div>
