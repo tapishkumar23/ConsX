@@ -11,6 +11,7 @@ import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { supabase } from "../Supabase/supabase";
 import { useAuth } from "../pages/AuthContext";
+import ICAL from "ical.js";
 
 const locales = {
   "en-US": enUS,
@@ -79,6 +80,50 @@ const CalendarView = () => {
     }
   };
 
+  const fetchIndianHolidays = async (year: number) => {
+  try {
+    const res = await fetch(
+      `https://calendarific.com/api/v2/holidays?api_key=tzLheE74hKHLTjUY7jjCQzNgu7R58jKc&country=IN&year=${year}`
+    );
+
+    const json = await res.json();
+
+    return json.response.holidays.map((h: any) => {
+      const date = new Date(h.date.iso);
+
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+
+      return {
+        id: `holiday-${h.date.iso}`,
+        title: `🇮🇳 ${h.name}`,
+        start,
+        end,
+        type: "leave",
+      };
+    });
+  } catch (err) {
+    console.error("Holiday fetch error:", err);
+    return [];
+  }
+};
+  
+  const getCountryByRole = (role: string) => {
+  switch (role) {
+    case "backend_employee":
+      return "IN";
+
+    case "ceo":
+    case "manager":
+    case "employee":
+    default:
+      return "US";
+  }
+};
+
   const fetchEvents = async () => {
     if (!user) return;
 
@@ -100,8 +145,27 @@ const CalendarView = () => {
       type: e.type,
     }));
 
-    const holidays = await fetchUSHolidays(currentDate.getFullYear());
+    // 👉 get user role
+const { data: userData } = await supabase
+  .from("users")
+  .select("role")
+  .eq("id", user.id)
+  .single();
+
+const role = userData?.role || "employee";
+
+// 👉 map role → country
+let holidays: EventType[] = [];
+
+if (role === "backend_employee") {
+  holidays = await fetchIndianHolidays(currentDate.getFullYear());
+} else {
+  holidays = await fetchUSHolidays(currentDate.getFullYear());
+
+}
     setEvents([...formatted, ...holidays]);
+    console.log("USER DATA:", userData);
+    console.log("ROLE:", role); 
   };
 
   useEffect(() => {
