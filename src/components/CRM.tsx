@@ -238,7 +238,7 @@ const { data, error } = await supabase
 
           <button
             onClick={() => setShowForm(true)}
-            className="bg-[#0B3D2E] text-white px-4 py-1.5 rounded-lg hover:opacity-90 transition"
+            className="bg-black text-white px-4 py-1.5 rounded-lg hover:bg-gray-800 transition"
           >
             + Add Lead
           </button>
@@ -252,7 +252,7 @@ const { data, error } = await supabase
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className="border border-gray-200 p-4 rounded-xl cursor-pointer hover:bg-gray-50 hover:shadow-sm transition-all duration-200"
+              className="border border-gray-200 p-4 rounded-xl cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all duration-200"
               onClick={() => setSelectedLead(lead)}
             >
               <p className="font-medium">{lead.name}</p>
@@ -290,18 +290,18 @@ const { data, error } = await supabase
         shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          <h3 className="text-lg font-semibold text-[#0B3D2E]">
+          <h3 className="text-lg font-semibold text-gray-900">
             {editingId ? "Edit Lead" : "Add Lead"}
           </h3>
 
-          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Name" value={name} onChange={(e)=>setName(e.target.value)} />
-          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Company" value={company} onChange={(e)=>setCompany(e.target.value)} />
-          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
-          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Phone" value={phone} onChange={(e)=>setPhone(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-gray-800" placeholder="Name" value={name} onChange={(e)=>setName(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-gray-800" placeholder="Company" value={company} onChange={(e)=>setCompany(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-gray-800" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-gray-800" placeholder="Phone" value={phone} onChange={(e)=>setPhone(e.target.value)} />
 
-          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Job Title" value={jobTitle} onChange={(e)=>setJobTitle(e.target.value)} />
-          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Lead Source" value={source} onChange={(e)=>setSource(e.target.value)} />
-          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-[#C6A15B]" placeholder="Type of Lead" value={type} onChange={(e)=>setType(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-gray-800" placeholder="Job Title" value={jobTitle} onChange={(e)=>setJobTitle(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-gray-800" placeholder="Lead Source" value={source} onChange={(e)=>setSource(e.target.value)} />
+          <input className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-gray-800" placeholder="Type of Lead" value={type} onChange={(e)=>setType(e.target.value)} />
 
           <select value={priority} onChange={(e)=>setPriority(e.target.value as Priority)} className="border p-2 w-full rounded-lg">
             <option value="low">Low</option>
@@ -328,7 +328,7 @@ const { data, error } = await supabase
 
             <button
               onClick={handleSubmit}
-              className="bg-[#0B3D2E] text-white px-4 py-1 rounded-lg hover:scale-105 transition"
+              className="bg-black text-white px-4 py-1 rounded-lg hover:bg-gray-800 transition"
             >
               Save
             </button>
@@ -359,7 +359,7 @@ const { data, error } = await supabase
             shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-[#0B3D2E]">
+            <h3 className="text-lg font-semibold text-gray-900">
               {selectedLead.name}
             </h3>
 
@@ -390,7 +390,8 @@ const { data, error } = await supabase
                     setSelectedLead(null);
                     editLead(selectedLead);
                   }}
-                  className="text-blue-600"
+                  className="text-gray-700"
+
                 >
                   Edit
                 </button>

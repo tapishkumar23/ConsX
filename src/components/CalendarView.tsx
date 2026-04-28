@@ -5,7 +5,7 @@ import {
 } from "react-big-calendar";
 
 import type { SlotInfo, Event as RBCEvent } from "react-big-calendar";
-
+import "../App.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -56,7 +56,7 @@ const CalendarView = () => {
     start: "",
     end: "",
   });
-  
+
   const fetchUSHolidays = async (year: number) => {
     try {
       const res = await fetch(
@@ -79,39 +79,36 @@ const CalendarView = () => {
     }
   };
 
-
-  // FETCH EVENTS
   const fetchEvents = async () => {
-  if (!user) return;
+    if (!user) return;
 
-  const { data, error } = await supabase
-    .from("events")
-    .select("*")
-    .eq("user_id", user.id);
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .eq("user_id", user.id);
 
-  if (error || !data) {
-    console.error(error);
-    return;
-  }
+    if (error || !data) {
+      console.error(error);
+      return;
+    }
 
-  const formatted: EventType[] = data.map((e: DBEvent) => ({
-    id: e.id,
-    title: e.title,
-    start: new Date(e.start_time),
-    end: new Date(e.end_time),
-    type: e.type,
-  }));
+    const formatted: EventType[] = data.map((e: DBEvent) => ({
+      id: e.id,
+      title: e.title,
+      start: new Date(e.start_time),
+      end: new Date(e.end_time),
+      type: e.type,
+    }));
 
-  const holidays = await fetchUSHolidays(currentDate.getFullYear());
-  setEvents([...formatted, ...holidays]);
-};
+    const holidays = await fetchUSHolidays(currentDate.getFullYear());
+    setEvents([...formatted, ...holidays]);
+  };
 
   useEffect(() => {
-  if (!user) return;
-  fetchEvents();
-}, [user?.id, currentDate]);
+    if (!user) return;
+    fetchEvents();
+  }, [user?.id, currentDate]);
 
-  // SLOT SELECT
   const handleSelectSlot = (slotInfo: SlotInfo) => {
     setEditingEvent(null);
 
@@ -125,7 +122,6 @@ const CalendarView = () => {
     setShowModal(true);
   };
 
-  // EVENT SELECT
   const handleSelectEvent = (event: RBCEvent) => {
     const e = event as EventType;
 
@@ -141,7 +137,6 @@ const CalendarView = () => {
     setShowModal(true);
   };
 
-  // SAVE
   const handleSave = async () => {
     if (!form.title || !form.start || !form.end) return;
 
@@ -174,45 +169,50 @@ const CalendarView = () => {
     fetchEvents();
   };
 
-  // DELETE
   const handleDelete = async () => {
     if (!editingEvent) return;
 
     await supabase
       .from("events")
       .delete()
-      .eq("id", editingEvent.id).eq("user_id", user?.id);
+      .eq("id", editingEvent.id)
+      .eq("user_id", user?.id);
 
     setShowModal(false);
     fetchEvents();
   };
 
-  // 🎨 EVENT STYLE
+  // 🎨 CLEAN EVENT COLORS (NEUTRAL SYSTEM)
   const eventStyleGetter = (event: EventType) => {
-    let bg = "#0B3D2E";
+    let bg = "#111827"; // default (black-ish)
+    let text = "#ffffff";
 
-    if (event.type === "leave") bg = "#dc2626";
-    if (event.type === "task") bg = "#C6A15B";
+    if (event.type === "task") {
+      bg = "#374151"; // dark grey
+    }
+
+    if (event.type === "leave") {
+      bg = "#9ca3af"; // light grey
+      text = "#111827";
+    }
 
     return {
       style: {
         backgroundColor: bg,
-    borderRadius: "8px",
-    color: "white",
-    border: "none",
-    padding: "4px 6px",
-    fontSize: "11px",
-    fontWeight: "600",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        color: text,
+        borderRadius: "6px",
+        border: "none",
+        padding: "4px 6px",
+        fontSize: "11px",
+        fontWeight: "500",
       },
     };
   };
 
-  // ✅ CUSTOM EVENT (better readability)
   const CustomEvent = ({ event }: { event: EventType }) => {
     return (
       <div title={event.title} className="leading-tight">
-        <div className="text-[11px] font-semibold truncate">
+        <div className="text-[11px] font-medium truncate">
           {event.title}
         </div>
       </div>
@@ -220,37 +220,33 @@ const CalendarView = () => {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-sm border border-gray-200 h-[580px] max-w-5xl mx-auto hover:shadow-lg transition-all duration-300">
-      
-        <Calendar
-          localizer={localizer}
-          events={events}
-          selectable
-          onSelectSlot={handleSelectSlot}
-          onSelectEvent={handleSelectEvent}
-          startAccessor="start"
-          endAccessor="end"
-          eventPropGetter={eventStyleGetter}
-          components={{ event: CustomEvent }}
+    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 h-[580px] max-w-5xl mx-auto">
 
-          date={currentDate}
-          onNavigate={(date) => setCurrentDate(date)}
-
-          view={view}
-          onView={(v) => setView(v as any)}
-          views={["month", "week", "day"]}
-
-          toolbar={true}
-          style={{ height: "100%" }}
-        />
-      
+      <Calendar
+        localizer={localizer}
+        events={events}
+        selectable
+        onSelectSlot={handleSelectSlot}
+        onSelectEvent={handleSelectEvent}
+        startAccessor="start"
+        endAccessor="end"
+        eventPropGetter={eventStyleGetter}
+        components={{ event: CustomEvent }}
+        date={currentDate}
+        onNavigate={(date) => setCurrentDate(date)}
+        view={view}
+        onView={(v) => setView(v as any)}
+        views={["month", "week", "day"]}
+        toolbar={true}
+        style={{ height: "100%" }}
+      />
 
       {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-[380px] space-y-4 shadow-xl">
+          <div className="bg-white p-6 rounded-xl w-[380px] space-y-4 shadow-lg border border-gray-200">
 
-            <h2 className="text-lg font-bold">
+            <h2 className="text-lg font-semibold text-gray-900">
               {editingEvent ? "Edit Event" : "Add Event"}
             </h2>
 
@@ -261,7 +257,7 @@ const CalendarView = () => {
               onChange={(e) =>
                 setForm({ ...form, title: e.target.value })
               }
-              className="w-full border p-2 rounded"
+              className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-800"
             />
 
             <select
@@ -272,7 +268,7 @@ const CalendarView = () => {
                   type: e.target.value as EventType["type"],
                 })
               }
-              className="w-full border p-2 rounded"
+              className="w-full border border-gray-300 p-2 rounded-md"
             >
               <option value="meeting">Meeting</option>
               <option value="task">Task</option>
@@ -285,7 +281,7 @@ const CalendarView = () => {
               onChange={(e) =>
                 setForm({ ...form, start: e.target.value })
               }
-              className="w-full border p-2 rounded"
+              className="w-full border border-gray-300 p-2 rounded-md"
             />
 
             <input
@@ -294,14 +290,14 @@ const CalendarView = () => {
               onChange={(e) =>
                 setForm({ ...form, end: e.target.value })
               }
-              className="w-full border p-2 rounded"
+              className="w-full border border-gray-300 p-2 rounded-md"
             />
 
             <div className="flex justify-between">
               {editingEvent && (
                 <button
                   onClick={handleDelete}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
+                  className="bg-gray-800 text-white px-3 py-1 rounded-md hover:bg-black"
                 >
                   Delete
                 </button>
@@ -310,14 +306,14 @@ const CalendarView = () => {
               <div className="flex gap-2 ml-auto">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-3 py-1 border rounded"
+                  className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100"
                 >
                   Cancel
                 </button>
 
                 <button
                   onClick={handleSave}
-                  className="bg-blue-500 text-white px-3 py-1 rounded"
+                  className="bg-black text-white px-3 py-1 rounded-md hover:bg-gray-800"
                 >
                   Save
                 </button>

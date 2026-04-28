@@ -36,47 +36,41 @@ const Navbar = () => {
   };
 
   return (
-    <div className="relative h-16 flex items-center justify-between px-8 text-white shadow-sm">
+    <div className="h-16 flex items-center justify-between px-8 
+      bg-gradient-to-r from-gray-800 via-gray-900 to-black 
+      border-b border-gray-800 shadow-sm">
 
-      {/* Base gradient (premium feel) */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0B3D2E] via-[#0E4A37] to-[#0B3D2E]"></div>
+      {/* Left */}
+      <h2 className="text-lg font-semibold tracking-tight text-white">
+        Dashboard
+      </h2>
 
-      {/* Soft light overlay */}
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
+      {/* Right */}
+      <div className="flex items-center gap-5">
 
-      {/* Content */}
-      <div className="relative w-full flex items-center justify-between">
+        {/* User */}
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-gray-400"></div>
 
-        {/* Left */}
-        <h2 className="text-lg font-semibold tracking-tight text-white/95">
-          Dashboard
-        </h2>
-
-        {/* Right */}
-        <div className="flex items-center gap-5">
-
-          {/* User */}
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#C6A15B]"></div>
-            <span className="text-sm text-white/90 font-medium">
-              {loading ? "..." : name || "name"}
-            </span>
-          </div>
-
-          {/* Divider */}
-          <div className="h-4 w-px bg-white/20"></div>
-
-          {/* Logout */}
-          <button
-            onClick={handleLogout}
-            className="text-xs px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 transition border border-white/20 backdrop-blur-sm"
-          >
-            Logout
-          </button>
-
+          <span className="text-sm text-gray-200 font-medium">
+            {loading ? "..." : name || "User"}
+          </span>
         </div>
-      </div>
+        
+        {/* Divider */}
+        <div className="h-4 w-px bg-gray-700"></div>
+        
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="text-xs px-3 py-1.5 rounded-md 
+          bg-white/10 hover:bg-white/20 
+          transition border border-white/20 text-white backdrop-blur-sm"
+        >
+          Logout
+        </button>
 
+      </div>
     </div>
   );
 };
