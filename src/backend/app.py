@@ -1,24 +1,27 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import smtplib
+import ssl
 from email.message import EmailMessage
 import os
 
 app = Flask(__name__)
 CORS(app)
 
-# ⚠️ TEMP ONLY — DO NOT COMMIT THIS
-import os
-
+# 🔐 ENV VARIABLES (set these in Render dashboard)
 SENDER_EMAIL = os.environ.get("EMAIL_USER")
-APP_PASSWORD = os.environ.get("EMAIL_PASS")  # no spaces
-
+APP_PASSWORD = os.environ.get("EMAIL_PASS")  # must be app password (no spaces)
 
 @app.route("/send-email", methods=["POST"])
 def send_email():
     try:
         data = request.get_json()
         print("🔥 Incoming data:", data)
+
+        # 🔍 Validate ENV first
+        if not SENDER_EMAIL or not APP_PASSWORD:
+            print("❌ Missing EMAIL_USER or EMAIL_PASS")
+            return jsonify({"error": "Email credentials not set"}), 500
 
         receiver = data.get("to")
         subject = data.get("subject", "No Subject")
@@ -29,6 +32,7 @@ def send_email():
         if not receiver:
             return jsonify({"error": "No recipient"}), 400
 
+        # ✉️ Email body
         body = f"""
 You have been assigned a new project.
 
@@ -55,17 +59,32 @@ Please check your dashboard for more details.
 
         print(f"📨 Sending email to: {receiver}")
 
+        # 🔥 FIXED SMTP (TLS + context)
+        context = ssl.create_default_context()
+
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
+            server.ehlo()
+            server.starttls(context=context)
+            server.ehlo()
             server.login(SENDER_EMAIL, APP_PASSWORD)
             server.send_message(msg)
 
         print("✅ Email sent successfully")
         return jsonify({"status": "sent"}), 200
 
+    except smtplib.SMTPAuthenticationError as e:
+        print("❌ AUTH ERROR:", repr(e))
+        return jsonify({"error": "SMTP Authentication failed"}), 500
+
     except Exception as e:
-        print("❌ ERROR:", str(e))
+        print("❌ FULL ERROR:", repr(e))
         return jsonify({"error": str(e)}), 500
+
+
+# 🔥 Health check route (IMPORTANT for Render)
+@app.route("/")
+def home():
+    return "Backend is running 🚀"
 
 
 if __name__ == "__main__":
