@@ -198,12 +198,15 @@ const { data, error } = await supabase
   };
 
   const deleteLead = async (id: string) => {
-    const { error } = await supabase.rpc("archive_and_delete_lead", {
-      lead_id: id,
-    });
-    if (error) console.error("DELETE ERROR:", error);
-    fetchLeads();
-  };
+  const { error } = await supabase.rpc("archive_and_delete_lead", {
+    p_lead_id: id,
+  });
+
+  if (error) console.error("DELETE ERROR:", error);
+
+  fetchLeads();
+  console.log("Deleting:", id);
+};
 
   const editLead = (lead: Lead) => {
     setName(lead.name);
