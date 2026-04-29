@@ -10,8 +10,8 @@ app = Flask(__name__)
 CORS(app)
 
 # 🔐 ENV VARIABLES (set these in Render dashboard)
-EMAIL_USER=project.montverretechnologies@gmail.com
-EMAIL_PASS=kmjgtmhefobpqwnf
+EMAIL_USER = project.montverretechnologies@gmail.com
+EMAIL_PASS = kmjgtmhefobpqwnf
 
 @app.route("/send-email", methods=["POST"])
 def send_email():
