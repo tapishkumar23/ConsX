@@ -2,13 +2,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import smtplib
 from email.message import EmailMessage
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-# 🔥 CONFIG
+# ⚠️ TEMP ONLY — DO NOT COMMIT THIS
 SENDER_EMAIL = "project.montverretechnologies@gmail.com"
-APP_PASSWORD = "kmjg tmhe fobp qwnf"  # 🔥 replace with real app password
+APP_PASSWORD = "kmjgtmhefobpqwnf"  # no spaces
 
 
 @app.route("/send-email", methods=["POST"])
@@ -26,7 +27,6 @@ def send_email():
         if not receiver:
             return jsonify({"error": "No recipient"}), 400
 
-        # 🔥 Email content
         body = f"""
 You have been assigned a new project.
 
@@ -51,7 +51,7 @@ Please check your dashboard for more details.
         msg["Subject"] = subject
         msg.set_content(body)
 
-        print("🚀 Connecting to Gmail...")
+        print(f"📨 Sending email to: {receiver}")
 
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
@@ -61,14 +61,11 @@ Please check your dashboard for more details.
         print("✅ Email sent successfully")
         return jsonify({"status": "sent"}), 200
 
-    except smtplib.SMTPAuthenticationError as e:
-        print("❌ AUTH ERROR:", e)
-        return jsonify({"error": "Authentication failed"}), 500
-
     except Exception as e:
         print("❌ ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
