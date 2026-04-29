@@ -134,3 +134,17 @@
 body.modal-open {
   overflow: hidden;
 }
+.input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-top: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #C6A15B;
+  box-shadow: 0 0 0 2px rgba(198, 161, 91, 0.2);
+}

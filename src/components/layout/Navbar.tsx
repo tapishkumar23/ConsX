@@ -1,9 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "../../Supabase/supabase";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -212,7 +214,10 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-gray-400"></div>
 
-          <span className="text-sm text-gray-200 font-medium">
+          <span
+            onClick={() => navigate("/user-details")}
+            className="text-sm text-gray-200 font-medium cursor-pointer hover:underline"
+          >
             {loading ? "..." : name || "User"}
           </span>
         </div>
