@@ -8,8 +8,10 @@ app = Flask(__name__)
 CORS(app)
 
 # ⚠️ TEMP ONLY — DO NOT COMMIT THIS
-SENDER_EMAIL = "project.montverretechnologies@gmail.com"
-APP_PASSWORD = "kmjgtmhefobpqwnf"  # no spaces
+import os
+
+SENDER_EMAIL = os.environ.get("EMAIL_USER")
+APP_PASSWORD = os.environ.get("EMAIL_PASS")  # no spaces
 
 
 @app.route("/send-email", methods=["POST"])
