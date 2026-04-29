@@ -4,6 +4,7 @@ import smtplib
 import ssl
 from email.message import EmailMessage
 import os
+import traceback
 
 app = Flask(__name__)
 CORS(app)
@@ -77,7 +78,8 @@ Please check your dashboard for more details.
         return jsonify({"error": "SMTP Authentication failed"}), 500
 
     except Exception as e:
-        print("❌ FULL ERROR:", repr(e))
+        print("❌ FULL ERROR:")
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
