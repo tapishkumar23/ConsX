@@ -9,9 +9,10 @@ import traceback
 app = Flask(__name__)
 CORS(app)
 
-# 🔐 ENV VARIABLES (set these in Render dashboard)
-EMAIL_USER = "project.montverretechnologies@gmail.com"
-EMAIL_PASS = "kmjgtmhefobpqwnf"
+# ✅ USE ENV VARIABLES (DO NOT HARDCODE IN PROD)
+EMAIL_USER = os.environ.get("EMAIL_USER")
+EMAIL_PASS = os.environ.get("EMAIL_PASS")  # must be WITHOUT spaces
+
 
 @app.route("/send-email", methods=["POST"])
 def send_email():
@@ -19,8 +20,8 @@ def send_email():
         data = request.get_json()
         print("🔥 Incoming data:", data)
 
-        # 🔍 Validate ENV first
-        if not SENDER_EMAIL or not APP_PASSWORD:
+        # ✅ Validate ENV
+        if not EMAIL_USER or not EMAIL_PASS:
             print("❌ Missing EMAIL_USER or EMAIL_PASS")
             return jsonify({"error": "Email credentials not set"}), 500
 
@@ -53,21 +54,21 @@ Please check your dashboard for more details.
 """
 
         msg = EmailMessage()
-        msg["From"] = SENDER_EMAIL
+        msg["From"] = EMAIL_USER
         msg["To"] = receiver
         msg["Subject"] = subject
         msg.set_content(body)
 
         print(f"📨 Sending email to: {receiver}")
 
-        # 🔥 FIXED SMTP (TLS + context)
+        # 🔐 Secure SMTP
         context = ssl.create_default_context()
 
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.ehlo()
             server.starttls(context=context)
             server.ehlo()
-            server.login(SENDER_EMAIL, APP_PASSWORD)
+            server.login(EMAIL_USER, EMAIL_PASS)
             server.send_message(msg)
 
         print("✅ Email sent successfully")
@@ -83,7 +84,7 @@ Please check your dashboard for more details.
         return jsonify({"error": str(e)}), 500
 
 
-# 🔥 Health check route (IMPORTANT for Render)
+# ✅ Health check route (Render needs this)
 @app.route("/")
 def home():
     return "Backend is running 🚀"
