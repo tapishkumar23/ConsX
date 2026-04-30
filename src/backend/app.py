@@ -1,17 +1,17 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import smtplib
-import ssl
-from email.message import EmailMessage
 import os
 import traceback
+import resend
 
 app = Flask(__name__)
 CORS(app)
 
-# ✅ USE ENV VARIABLES (DO NOT HARDCODE IN PROD)
-EMAIL_USER = os.environ.get("SENDER_EMAIL")
-EMAIL_PASS = os.environ.get("APP_PASSWORD")  # must be WITHOUT spaces
+# ✅ ENV VARIABLES
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+
+# 🔥 Initialize Resend
+resend.api_key = RESEND_API_KEY
 
 
 @app.route("/send-email", methods=["POST"])
@@ -20,10 +20,8 @@ def send_email():
         data = request.get_json()
         print("🔥 Incoming data:", data)
 
-        # ✅ Validate ENV
-        if not EMAIL_USER or not EMAIL_PASS:
-            print("❌ Missing EMAIL_USER or EMAIL_PASS")
-            return jsonify({"error": "Email credentials not set"}), 500
+        if not RESEND_API_KEY:
+            return jsonify({"error": "Missing RESEND_API_KEY"}), 500
 
         receiver = data.get("to")
         subject = data.get("subject", "No Subject")
@@ -53,30 +51,19 @@ You have been assigned a new project.
 Please check your dashboard for more details.
 """
 
-        msg = EmailMessage()
-        msg["From"] = EMAIL_USER
-        msg["To"] = receiver
-        msg["Subject"] = subject
-        msg.set_content(body)
-
         print(f"📨 Sending email to: {receiver}")
 
-        # 🔐 Secure SMTP
-        context = ssl.create_default_context()
+        # ✅ Send email via Resend
+        response = resend.Emails.send({
+            "from": "onboarding@resend.dev",  # default sender
+            "to": receiver,
+            "subject": subject,
+            "text": body
+        })
 
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.ehlo()
-            server.starttls(context=context)
-            server.ehlo()
-            server.login(EMAIL_USER, EMAIL_PASS)
-            server.send_message(msg)
+        print("✅ Email sent:", response)
 
-        print("✅ Email sent successfully")
         return jsonify({"status": "sent"}), 200
-
-    except smtplib.SMTPAuthenticationError as e:
-        print("❌ AUTH ERROR:", repr(e))
-        return jsonify({"error": "SMTP Authentication failed"}), 500
 
     except Exception as e:
         print("❌ FULL ERROR:")
@@ -84,7 +71,7 @@ Please check your dashboard for more details.
         return jsonify({"error": str(e)}), 500
 
 
-# ✅ Health check route (Render needs this)
+# ✅ Health check route
 @app.route("/")
 def home():
     return "Backend is running 🚀"
