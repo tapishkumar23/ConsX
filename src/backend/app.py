@@ -10,8 +10,8 @@ app = Flask(__name__)
 CORS(app)
 
 # ✅ USE ENV VARIABLES (DO NOT HARDCODE IN PROD)
-EMAIL_USER = os.environ.get("EMAIL_USER")
-EMAIL_PASS = os.environ.get("EMAIL_PASS")  # must be WITHOUT spaces
+EMAIL_USER = os.environ.get("SENDER_EMAIL")
+EMAIL_PASS = os.environ.get("APP_PASSWORD")  # must be WITHOUT spaces
 
 
 @app.route("/send-email", methods=["POST"])
