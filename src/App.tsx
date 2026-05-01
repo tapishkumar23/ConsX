@@ -3,6 +3,7 @@ import Dashboard from "./pages/Dashboard";
 import UserDetails from "./pages/UserDetails";
 import ApplyLeave from "./pages/ApplyLeave";
 import HRLeaves from "./pages/HRLeaves";
+import CompanyPolicies from "./components/Policies";
 
 import { AuthProvider } from "./pages/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -52,6 +53,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Policies */}
+          <Route path="/policies" element={<CompanyPolicies />} />
 
         </Routes>
       </BrowserRouter>

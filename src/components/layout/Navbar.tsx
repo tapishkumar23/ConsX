@@ -238,6 +238,13 @@ const Navbar = () => {
             HR Panel
           </button>
         )}
+        {/* Policies */}
+          <button
+            onClick={() => navigate("/policies")}
+            className="text-sm text-gray-300 hover:text-white"
+          >
+            Policies
+          </button>
 
         {/* User */}
         <div className="flex items-center gap-2">
