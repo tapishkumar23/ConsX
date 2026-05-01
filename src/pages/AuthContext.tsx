@@ -3,7 +3,7 @@ import { supabase } from "../Supabase/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 
 /* ✅ Strong role typing (FIXES your TS issue) */
-type Role = "employee" | "manager" | "ceo" | "hr";
+type Role = "employee" | "manager" | "ceo" | "hr" | "backend_employee";
 
 type AuthContextType = {
   session: Session | null;
