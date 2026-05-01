@@ -7,10 +7,7 @@ import resend
 app = Flask(__name__)
 CORS(app)
 
-# ✅ ENV VARIABLES
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-
-# 🔥 Initialize Resend
 resend.api_key = RESEND_API_KEY
 
 
@@ -18,10 +15,6 @@ resend.api_key = RESEND_API_KEY
 def send_email():
     try:
         data = request.get_json()
-        print("🔥 Incoming data:", data)
-
-        if not RESEND_API_KEY:
-            return jsonify({"error": "Missing RESEND_API_KEY"}), 500
 
         receiver = data.get("to")
         subject = data.get("subject", "No Subject")
@@ -32,11 +25,9 @@ def send_email():
         if not receiver:
             return jsonify({"error": "No recipient"}), 400
 
-        # ✉️ Email body
         body = f"""
 You have been assigned a new project.
 
-----------------------------------------
 📌 Title: {subject}
 
 📝 Description:
@@ -44,34 +35,24 @@ You have been assigned a new project.
 
 👤 Assigned by: {assigned_by}
 
-----------------------------------------
 📎 Attachment:
 {attachment_link if attachment_link else "No attachment"}
-
-Please check your dashboard for more details.
 """
 
-        print(f"📨 Sending email to: {receiver}")
-
-        # ✅ Send email via Resend
-        response = resend.Emails.send({
-            "from": "onboarding@resend.dev",  # default sender
+        resend.Emails.send({
+            "from": "noreply@consx.app",   # ✅ verified domain email
             "to": receiver,
             "subject": subject,
             "text": body
         })
 
-        print("✅ Email sent:", response)
-
         return jsonify({"status": "sent"}), 200
 
     except Exception as e:
-        print("❌ FULL ERROR:")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
-# ✅ Health check route
 @app.route("/")
 def home():
     return "Backend is running 🚀"
