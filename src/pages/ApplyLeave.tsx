@@ -43,48 +43,48 @@ const ApplyLeave = () => {
         return;
       }
 
-      // 🔥 NEW LOGIC STARTS HERE
+// 🔥 NEW LOGIC STARTS HERE
 
-      // ✅ Get current user role
-      const { data: currentUser } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+// ✅ Get current user role + name
+const { data: currentUser } = await supabase
+  .from("users")
+  .select("role, name")
+  .eq("id", user.id)
+  .single();
 
-      const role = currentUser?.role;
+const role = currentUser?.role?.trim().toLowerCase();
+const userName = currentUser?.name || "Employee";
 
-      let approvers: any[] = [];
+// ✅ Get all users (safe filtering)
+const { data: allUsers } = await supabase
+  .from("users")
+  .select("id, role");
 
-      if (role === "employee") {
-        // Employee → HR + CEO
-        const { data } = await supabase
-          .from("users")
-          .select("id")
-          .in("role", ["hr", "ceo"]);
+let approvers: any[] = [];
 
-        approvers = data || [];
-      } else if (role === "hr" || role === "manager") {
-        // HR / Manager → CEO only
-        const { data } = await supabase
-          .from("users")
-          .select("id")
-          .eq("role", "ceo");
+if (!["hr", "ceo", "manager"].includes(role)) {
+  // 👇 employee → HR + CEO
+  approvers = (allUsers || []).filter(u =>
+    ["hr", "ceo"].includes(u.role?.trim().toLowerCase())
+  );
+} else if (role === "hr" || role === "manager") {
+  // 👇 HR / manager → CEO
+  approvers = (allUsers || []).filter(
+    u => u.role?.trim().toLowerCase() === "ceo"
+  );
+}
 
-        approvers = data || [];
-      }
+// ✅ Send notifications
+if (approvers.length > 0) {
+  const notifications = approvers.map((u) => ({
+    user_id: u.id,
+    message: `${userName} applied for leave`,
+  }));
 
-      // ✅ Send notifications
-      if (approvers.length > 0) {
-        const notifications = approvers.map((u) => ({
-          user_id: u.id,
-          message: `New leave request from ${role}`,
-        }));
+  await supabase.from("notifications").insert(notifications);
+}
 
-        await supabase.from("notifications").insert(notifications);
-      }
-
-      // 🔥 NEW LOGIC ENDS HERE
+// 🔥 NEW LOGIC ENDS HERE
 
       alert("Leave applied successfully!");
       navigate("/");
