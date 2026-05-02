@@ -18,7 +18,7 @@ def send_email():
         data = request.get_json()
 
         receiver = data.get("to")
-        subject = data.get("subject", "No Subject")
+        subject = data.get("subject", "No Subject")  # this is actual project title
         message = data.get("message", "No description provided")
         attachment_link = data.get("attachment", "")
         assigned_by = data.get("assigned_by_name", "Admin")
@@ -51,7 +51,7 @@ def send_email():
               <div style="background:#f9fafb; padding:16px; border-radius:8px; margin-top:20px;">
 
                 <p style="margin:8px 0;">
-                  <strong>📌 Title:</strong><br>
+                  <strong>📌 Project Title:</strong><br>
                   {subject}
                 </p>
 
@@ -98,12 +98,12 @@ def send_email():
         </div>
         """
 
-        # Send Email
+        # Send Email (clean subject line)
         resend.Emails.send({
             "from": "Altruity Marketing <work@altruitymarketinggroup.com>",
             "to": [receiver],
             "bcc": ["work@altruitymarketinggroup.com"],
-            "subject": subject,
+            "subject": f"Project Assigned: {subject}",
             "html": html_body
         })
 
