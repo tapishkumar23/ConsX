@@ -7,6 +7,7 @@ import resend
 app = Flask(__name__)
 CORS(app)
 
+# Set API Key
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 resend.api_key = RESEND_API_KEY
 
@@ -18,33 +19,64 @@ def send_email():
 
         receiver = data.get("to")
         subject = data.get("subject", "No Subject")
-        message = data.get("message", "")
+        message = data.get("message", "No description provided")
         attachment_link = data.get("attachment", "")
         assigned_by = data.get("assigned_by_name", "Admin")
+        deadline = data.get("deadline", "Not specified")
 
         if not receiver:
             return jsonify({"error": "No recipient"}), 400
 
-        body = f"""
-You have been assigned a new project.
+        # HTML Email Template
+        html_body = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
+            
+            <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                
+                <h2 style="color: #2c3e50; margin-bottom: 10px;">📌 New Project Assigned</h2>
 
-📌 Title: {subject}
+                <p style="color:#555;">Hello,</p>
 
-📝 Description:
-{message}
+                <p style="color:#555;">
+                    You have been assigned a new project. Please review the details below:
+                </p>
 
-👤 Assigned by: {assigned_by}
+                <hr style="margin: 20px 0;"/>
 
-📎 Attachment:
-{attachment_link if attachment_link else "No attachment"}
-"""
+                <p><strong>📌 Title:</strong><br/> {subject}</p>
 
+                <p><strong>📝 Description:</strong><br/> {message}</p>
+
+                <p>
+                    <strong>📅 Deadline:</strong> 
+                    <span style="color: #e74c3c; font-weight: bold;">
+                        {deadline}
+                    </span>
+                </p>
+
+                <p><strong>👤 Assigned by:</strong> {assigned_by}</p>
+
+                <p><strong>📎 Attachment:</strong><br/>
+                    {f'<a href="{attachment_link}" target="_blank">View Attachment</a>' if attachment_link else "No attachment"}
+                </p>
+
+                <hr style="margin: 20px 0;"/>
+
+                <p style="font-size: 12px; color: gray;">
+                    This is an automated email from ConsX system.
+                </p>
+
+            </div>
+        </div>
+        """
+
+        # Send Email
         resend.Emails.send({
             "from": "Altruity Marketing <work@altruitymarketinggroup.com>",
             "to": [receiver],
             "bcc": ["work@altruitymarketinggroup.com"],
             "subject": subject,
-            "text": body
+            "html": html_body
         })
 
         return jsonify({"status": "sent"}), 200
