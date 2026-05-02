@@ -8,20 +8,9 @@ interface Policy {
   title: string;
   description: string | null;
   file_path: string;
-  category: string | null;
   created_at: string;
   uploaded_by: string | null;
 }
-
-const CATEGORIES = [
-  "All",
-  "HR Policies",
-  "Leave & Attendance",
-  "Code of Conduct",
-  "IT & Security",
-  "Finance",
-  "Other",
-];
 
 const CompanyPolicies = () => {
   const navigate = useNavigate();
@@ -32,14 +21,12 @@ const CompanyPolicies = () => {
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loadingPdf, setLoadingPdf] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("All");
 
   // HR upload state
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadDesc, setUploadDesc] = useState("");
-  const [uploadCategory, setUploadCategory] = useState("Other");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -50,7 +37,7 @@ const CompanyPolicies = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const isHR = role === "hr";
 
-  /* ── fetch policies ── */
+  /* fetch policies */
   const fetchPolicies = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -66,7 +53,7 @@ const CompanyPolicies = () => {
     fetchPolicies();
   }, []);
 
-  /* ── open policy viewer ── */
+  /* open policy viewer */
   const handleOpenPolicy = async (policy: Policy) => {
     setSelectedPolicy(policy);
     setPdfUrl(null);
@@ -74,7 +61,7 @@ const CompanyPolicies = () => {
 
     const { data, error } = await supabase.storage
       .from("company-policies")
-      .createSignedUrl(policy.file_path, 60 * 60); // 1 hour, no download
+      .createSignedUrl(policy.file_path, 60 * 60);
 
     if (error) {
       console.error(error.message);
@@ -82,12 +69,11 @@ const CompanyPolicies = () => {
       return;
     }
 
-    // Append #toolbar=0 to hide PDF download button in most browsers
-    setPdfUrl((data?.signedUrl ?? "") + "#toolbar=0&navpanes=0");
+    setPdfUrl((data?.signedUrl ?? "") + "#toolbar=0&navpanes=0&scrollbar=1");
     setLoadingPdf(false);
   };
 
-  /* ── upload policy (HR) ── */
+  /* upload policy (HR) */
   const handleUpload = async () => {
     if (!uploadFile || !uploadTitle.trim()) {
       setUploadError("Title and file are required.");
@@ -113,7 +99,6 @@ const CompanyPolicies = () => {
       title: uploadTitle.trim(),
       description: uploadDesc.trim() || null,
       file_path: filePath,
-      category: uploadCategory,
       uploaded_by: user?.id ?? null,
     });
 
@@ -127,12 +112,11 @@ const CompanyPolicies = () => {
     setUploadFile(null);
     setUploadTitle("");
     setUploadDesc("");
-    setUploadCategory("Other");
     await fetchPolicies();
     setUploading(false);
   };
 
-  /* ── delete policy (HR) ── */
+  /* delete policy (HR) */
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
@@ -153,13 +137,7 @@ const CompanyPolicies = () => {
     setDeleting(false);
   };
 
-  /* ── filtered list ── */
-  const filtered =
-    activeCategory === "All"
-      ? policies
-      : policies.filter((p) => p.category === activeCategory);
-
-  /* ── format date ── */
+  /* format date */
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("en-IN", {
       day: "numeric",
@@ -167,22 +145,9 @@ const CompanyPolicies = () => {
       year: "numeric",
     });
 
-  /* ── category badge color ── */
-  const categoryColor = (cat: string | null) => {
-    const map: Record<string, string> = {
-      "HR Policies": "bg-violet-100 text-violet-700",
-      "Leave & Attendance": "bg-blue-100 text-blue-700",
-      "Code of Conduct": "bg-amber-100 text-amber-700",
-      "IT & Security": "bg-cyan-100 text-cyan-700",
-      Finance: "bg-emerald-100 text-emerald-700",
-      Other: "bg-gray-100 text-gray-600",
-    };
-    return map[cat ?? "Other"] ?? "bg-gray-100 text-gray-600";
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      {/* ── HEADER ── */}
+      {/* HEADER */}
       <div className="bg-white border-b px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
@@ -211,72 +176,60 @@ const CompanyPolicies = () => {
       </div>
 
       <div className="flex h-[calc(100vh-65px)]">
-        {/* ── LEFT: Policy List ── */}
-        <div className="w-80 border-r bg-white flex flex-col flex-shrink-0">
-          {/* Category Filter */}
-          <div className="p-4 border-b">
-            <div className="flex flex-wrap gap-1.5">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-                    activeCategory === cat
-                      ? "bg-black text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+
+        {/* LEFT: Policy Index */}
+        <div className="w-72 border-r bg-white flex flex-col flex-shrink-0">
+          <div className="px-4 py-3 border-b">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              All Policies
+            </p>
           </div>
 
-          {/* List */}
           <div className="overflow-y-auto flex-1">
             {loading ? (
               <div className="p-6 text-sm text-gray-400">Loading...</div>
-            ) : filtered.length === 0 ? (
+            ) : policies.length === 0 ? (
               <div className="p-6 text-sm text-gray-400 text-center">
-                No policies in this category.
+                No policies uploaded yet.
               </div>
             ) : (
-              filtered.map((policy) => (
+              policies.map((policy, index) => (
                 <div
                   key={policy.id}
                   onClick={() => handleOpenPolicy(policy)}
-                  className={`group relative p-4 border-b cursor-pointer transition ${
+                  className={`group relative flex items-start gap-3 px-4 py-3 border-b cursor-pointer transition border-l-2 ${
                     selectedPolicy?.id === policy.id
-                      ? "bg-gray-50 border-l-2 border-l-black"
-                      : "hover:bg-gray-50 border-l-2 border-l-transparent"
+                      ? "bg-gray-50 border-l-black"
+                      : "border-l-transparent hover:bg-gray-50"
                   }`}
                 >
-                  {/* PDF icon + title */}
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex-shrink-0 w-8 h-8 bg-red-50 rounded flex items-center justify-center">
-                      <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8.5 17.5h-1v-5h1.8c1.1 0 1.7.6 1.7 1.5 0 1-.7 1.6-1.8 1.6H8.5v1.9zm0-2.7h.7c.5 0 .8-.3.8-.7s-.3-.7-.8-.7H8.5v1.4zm4.3 2.7h-1v-5h1.1c1.5 0 2.4.9 2.4 2.5s-.9 2.5-2.5 2.5zm0-4.1v3.2c.9 0 1.4-.6 1.4-1.6s-.5-1.6-1.4-1.6zm4.2 4.1v-5h3v.9h-2v1.1h1.8v.9H18v2.1h-1z"/>
-                      </svg>
-                    </div>
+                  {/* Index number */}
+                  <span className="text-xs text-gray-400 font-mono mt-0.5 w-5 flex-shrink-0">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
 
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate pr-6">
-                        {policy.title}
+                  {/* PDF icon */}
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg className="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8.5 17.5h-1v-5h1.8c1.1 0 1.7.6 1.7 1.5 0 1-.7 1.6-1.8 1.6H8.5v1.9zm0-2.7h.7c.5 0 .8-.3.8-.7s-.3-.7-.8-.7H8.5v1.4zm4.3 2.7h-1v-5h1.1c1.5 0 2.4.9 2.4 2.5s-.9 2.5-2.5 2.5zm0-4.1v3.2c.9 0 1.4-.6 1.4-1.6s-.5-1.6-1.4-1.6zm4.2 4.1v-5h3v.9h-2v1.1h1.8v.9H18v2.1h-1z"/>
+                    </svg>
+                  </div>
+
+                  {/* Title + date */}
+                  <div className="flex-1 min-w-0 pr-5">
+                    <p className={`text-sm font-medium truncate ${
+                      selectedPolicy?.id === policy.id ? "text-gray-900" : "text-gray-700"
+                    }`}>
+                      {policy.title}
+                    </p>
+                    {policy.description && (
+                      <p className="text-xs text-gray-400 truncate mt-0.5">
+                        {policy.description}
                       </p>
-                      {policy.description && (
-                        <p className="text-xs text-gray-400 mt-0.5 truncate">
-                          {policy.description}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${categoryColor(policy.category)}`}>
-                          {policy.category ?? "Other"}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {formatDate(policy.created_at)}
-                        </span>
-                      </div>
-                    </div>
+                    )}
+                    <p className="text-xs text-gray-400 mt-1">
+                      {formatDate(policy.created_at)}
+                    </p>
                   </div>
 
                   {/* HR delete button */}
@@ -300,7 +253,7 @@ const CompanyPolicies = () => {
           </div>
         </div>
 
-        {/* ── RIGHT: PDF Viewer ── */}
+        {/* RIGHT: PDF Viewer */}
         <div className="flex-1 flex flex-col bg-gray-100">
           {!selectedPolicy ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-8">
@@ -309,9 +262,7 @@ const CompanyPolicies = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
               </div>
-              <p className="text-sm font-medium text-gray-500">
-                Select a policy to view
-              </p>
+              <p className="text-sm font-medium text-gray-500">Select a policy to view</p>
               <p className="text-xs text-gray-400 max-w-xs">
                 Click any policy from the list on the left to open and read it here.
               </p>
@@ -330,41 +281,51 @@ const CompanyPolicies = () => {
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${categoryColor(selectedPolicy.category)}`}>
-                    {selectedPolicy.category ?? "Other"}
-                  </span>
-                  <button
-                    onClick={() => { setSelectedPolicy(null); setPdfUrl(null); }}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 transition"
-                  >
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
+                <button
+                  onClick={() => { setSelectedPolicy(null); setPdfUrl(null); }}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 transition"
+                >
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
 
-              {/* PDF iframe */}
-              <div className="flex-1 relative">
+              {/* PDF viewer with right-click block */}
+              <div
+                className="flex-1 relative select-none"
+                onContextMenu={(e) => e.preventDefault()}
+              >
                 {loadingPdf && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-20">
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
                       <p className="text-xs text-gray-500">Loading document...</p>
                     </div>
                   </div>
                 )}
+
                 {pdfUrl && (
-                  <iframe
-                    ref={iframeRef}
-                    src={pdfUrl}
-                    className="w-full h-full border-0"
-                    title={selectedPolicy.title}
-                    // Disabling download via sandbox — allows scripts for PDF.js rendering
-                    // but blocks form submission and pointer lock
-                    sandbox="allow-scripts allow-same-origin"
-                  />
+                  <>
+                    <iframe
+                      ref={iframeRef}
+                      src={pdfUrl}
+                      className="w-full h-full border-0"
+                      title={selectedPolicy.title}
+                    />
+                    {/*
+                      Transparent overlay sits on top of the iframe.
+                      It has pointer-events: none so scrolling/clicking inside
+                      the PDF still works, but the browser's native right-click
+                      menu is caught by the parent's onContextMenu handler.
+                      For extra coverage we also handle it directly here.
+                    */}
+                    <div
+                      className="absolute inset-0 z-10"
+                      style={{ pointerEvents: "none" }}
+                      onContextMenu={(e) => e.preventDefault()}
+                    />
+                  </>
                 )}
               </div>
             </>
@@ -372,7 +333,7 @@ const CompanyPolicies = () => {
         </div>
       </div>
 
-      {/* ── UPLOAD MODAL (HR only) ── */}
+      {/* UPLOAD MODAL (HR only) */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
@@ -412,23 +373,6 @@ const CompanyPolicies = () => {
                   rows={2}
                   className="input mt-1 resize-none"
                 />
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-500 font-medium">
-                  Category
-                </label>
-                <select
-                  value={uploadCategory}
-                  onChange={(e) => setUploadCategory(e.target.value)}
-                  className="input mt-1"
-                >
-                  {CATEGORIES.filter((c) => c !== "All").map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div>
@@ -474,15 +418,13 @@ const CompanyPolicies = () => {
         </div>
       )}
 
-      {/* ── DELETE CONFIRM MODAL (HR only) ── */}
+      {/* DELETE CONFIRM MODAL */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
             <h2 className="text-base font-semibold mb-2">Delete Policy?</h2>
             <p className="text-sm text-gray-500 mb-5">
-              <span className="font-medium text-gray-800">
-                {deleteTarget.title}
-              </span>{" "}
+              <span className="font-medium text-gray-800">{deleteTarget.title}</span>{" "}
               will be permanently removed. This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
