@@ -17,6 +17,9 @@ type Task = {
   assigned_user?: {
     name: string;
   };
+  created_by_user?: {
+    name: string;
+  };
   attachment_url?: string | null;
 };
 
@@ -35,7 +38,7 @@ const Tasks = () => {
   const [priority, setPriority] = useState<Priority>("medium");
 
   const [assignedTo, setAssignedTo] = useState<string>(""); // ✅ new
-  const [assignableUsers, setAssignableUsers] = useState<{ id: string; email: string }[]>([]); // ✅ new
+  const [assignableUsers, setAssignableUsers] = useState<{ id: string; email: string; name: string }[]>([]);
 
   /* ✅ Fetch assignable users based on role */
   const fetchAssignableUsers = async () => {
@@ -50,20 +53,28 @@ const Tasks = () => {
     return;
   }
 
-  let filteredUsers = [];
+  let filteredUsers: typeof assignableUsers = [];
 
   if (role === "ceo") {
-    filteredUsers = data.filter(
-      (u) => u.role === "manager" || u.id === user.id
-    );
-  } else if (role === "manager") {
-    filteredUsers = data.filter(
-      (u) => u.role === "employee" || u.id === user.id
-    );
-  } else {
-    // employee → only themselves
-    filteredUsers = data.filter((u) => u.id === user.id);
-  }
+  // CEO → assign to everyone
+  filteredUsers = data;
+} 
+else if (role === "manager") {
+  // Manager → employees + self
+  filteredUsers = data.filter(
+    (u) => u.role === "employee" || u.id === user.id
+  );
+} 
+else if (role === "hr") {
+  // 🔥 HR → everyone except CEO
+  filteredUsers = data.filter(
+    (u) => u.role !== "ceo"
+  );
+} 
+else {
+  // employee / backend_employee → only themselves
+  filteredUsers = data.filter((u) => u.id === user.id);
+}
 
   setAssignableUsers(filteredUsers);
 };
@@ -72,16 +83,23 @@ const Tasks = () => {
   const fetchTasks = async () => {
     if (!user || !role) return;
 
-    let query = supabase.from("tasks").select("*, assigned_user:users!tasks_assigned_to_fkey(name)").order("id", { ascending: false });
+    let query = supabase
+  .from("tasks")
+  .select("*")
+  .order("id", { ascending: false });
+
+  const { data: usersData } = await supabase
+  .from("users")
+  .select("id, name");
 
     if (role === "ceo") {
       // ceo can see all tasks
     } else if (role === "manager") {
       // manager sees tasks created by her or assigned to her
       query = query.or(`user_id.eq.${user.id},assigned_to.eq.${user.id}`);
-    } else if (role === "employee") {
+    } else if (role === "employee" || role === "hr" || role === "backend_employee") {
       // employee sees tasks assigned to him
-      query = query.eq("assigned_to", user.id);
+      query = query.or(`assigned_to.eq.${user.id},user_id.eq.${user.id}`);
     } else {
       query = query.eq("user_id", user.id);
     }
@@ -92,18 +110,24 @@ const Tasks = () => {
       return;
     }
 
-    const formatted = (data || []).map((t) => ({
-      ...t,
-      deadline: t.deadline ? String(t.deadline) : "",
-    }));
+    const formatted = (data || []).map((t) => {
+  const assignedUser = usersData?.find((u) => u.id === t.assigned_to);
+  const createdByUser = usersData?.find((u) => u.id === t.user_id);
 
+  return {
+    ...t,
+    deadline: t.deadline ? String(t.deadline) : "",
+    assigned_user: assignedUser ? { name: assignedUser.name } : undefined,
+    created_by_user: createdByUser ? { name: createdByUser.name } : undefined,
+  };
+});
     setTasks(formatted);
   };
 
   useEffect(() => {
     fetchTasks();
     fetchAssignableUsers(); // load assignable users for form
-  }, [role]);
+  }, [role, user]);
 
   const resetForm = () => {
     setTitle("");
@@ -151,8 +175,8 @@ const handleSubmit = async () => {
         deadline: deadline || null,
         status,
         priority,
-        assigned_to: assignedTo || null,
-        attachment_url: fileUrl,
+        assigned_to: assignedTo ? assignedTo : user.id,
+        attachment_url: fileUrl ?? selectedTask?.attachment_url ?? null,
       })
       .eq("id", editingId);
 
@@ -169,7 +193,7 @@ const handleSubmit = async () => {
         status,
         priority,
         user_id: user.id,
-        assigned_to: assignedTo || null,
+        assigned_to: assignedTo ? assignedTo : user.id,
         attachment_url: fileUrl,
       },
     ]);
@@ -241,13 +265,13 @@ const handleSubmit = async () => {
   return (
     <>
       {/* TASK PANEL */}
-      <div className="bg-white p-5 rounded-2xl shadow-sm mt-6 border border-gray-200 transition hover:shadow-lg">
+      <div className="bg-white p-5 rounded-2xl shadow-sm mt-6 border border-gray-200 transition hover:shadow-lg max-h-[500px] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold text-[#0B3D2E] tracking-wide">
             Tasks
           </h2>
 
-          {(role === "ceo" || role === "manager" || role === "employee") && (
+          {(role === "ceo" || role === "manager" || role === "employee" || role ==="backend_employee" || role === "hr") && (
             <button
               onClick={() => setShowForm(true)}
               className="bg-black text-white px-4 py-2 rounded-lg hover:scale-105 hover:shadow-md transition-all duration-200"
@@ -257,7 +281,7 @@ const handleSubmit = async () => {
           )}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scroll-smooth">
           {tasks.length === 0 && (
             <p className="text-sm text-gray-400">No tasks yet</p>
           )}
@@ -294,6 +318,9 @@ const handleSubmit = async () => {
                   Assigned To: {task.assigned_user?.name || "Unassigned"}
                 </p>
               )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Assigned By: {task.created_by_user?.name || "Unknown"}
+                </p>
             </div>
           ))}
         </div>
@@ -365,7 +392,7 @@ const handleSubmit = async () => {
               />
             </div>
 
-            {(role === "ceo" || role === "manager") && (
+            {(role === "ceo" || role === "manager" || role === "hr") && (
               <div>
                 <label className="text-sm font-medium">Assign To</label>
                 <select
@@ -376,7 +403,7 @@ const handleSubmit = async () => {
                   <option value="">Select User</option>
                   {assignableUsers.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.email}
+                      {u.name} 
                     </option>
                   ))}
                 </select>
@@ -406,73 +433,123 @@ const handleSubmit = async () => {
       )}
 
       {/* DETAIL MODAL */}
-      {selectedTask && (
+{selectedTask && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
+    onClick={() => setSelectedTask(null)}
+  >
+    <div className="absolute inset-0 bg-black/40"></div>
+
+    {(() => {
+      const task = selectedTask; // ✅ fixes TS null issue
+
+      return (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
-          onClick={() => setSelectedTask(null)}
+          className="relative bg-white p-6 rounded-2xl w-96 space-y-4 z-50 shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
         >
-          <div className="absolute inset-0 bg-black/40"></div>
+          {/* Title */}
+          <h3 className="text-xl font-semibold text-gray-800">
+            {task.title}
+          </h3>
 
-          <div
-            className="relative bg-white p-6 rounded-2xl w-96 space-y-3 z-50 shadow-2xl animate-fadeIn"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold">{selectedTask.title}</h3>
+          {/* Description */}
+          <p className="text-gray-600 text-sm">
+            {task.description || "No description"}
+          </p>
 
-            <p className="text-gray-600">
-              {selectedTask.description || "No description"}
+          <div className="border-t border-gray-200"></div>
+
+          {/* Info Grid */}
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <p>
+              <span className="font-medium text-gray-700">Priority:</span>{" "}
+              <span className="text-gray-600 capitalize">{task.priority}</span>
             </p>
 
-            <p><strong>Priority:</strong> {selectedTask.priority}</p>
-            <p><strong>Status:</strong> {selectedTask.status}</p>
-            <p><strong>Deadline:</strong> {selectedTask.deadline || "N/A"}</p>
-            {selectedTask.assigned_to && (
-              <p><strong>Assigned To:</strong> {selectedTask.assigned_to}</p>
-            )}
-            {selectedTask.attachment_url && (
+            <p>
+              <span className="font-medium text-gray-700">Status:</span>{" "}
+              <span className="text-gray-600 capitalize">{task.status}</span>
+            </p>
+
+            <p>
+              <span className="font-medium text-gray-700">Deadline:</span>{" "}
+              <span className="text-gray-600">
+                {task.deadline || "N/A"}
+              </span>
+            </p>
+
+            <p>
+              <span className="font-medium text-gray-700">Assigned To:</span>{" "}
+              <span className="text-gray-600">
+                {task.assigned_user?.name || "Unassigned"}
+              </span>
+            </p>
+
+            <p className="col-span-2">
+              <span className="font-medium text-gray-700">Assigned By:</span>{" "}
+              <span className="text-gray-600">
+                {task.created_by_user?.name || "Unknown"}
+              </span>
+            </p>
+          </div>
+
+          {/* Attachment */}
+          {task.attachment_url && (
+            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <p className="text-sm font-medium text-gray-700 mb-1">
+                📎 Attachment
+              </p>
               <a
-                href={selectedTask.attachment_url}
+                href={task.attachment_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 text-sm underline"
+                className="text-blue-600 text-sm underline hover:text-blue-800"
               >
-                View Attachment
+                View / Download File
               </a>
-            )}
-
-            <div className="flex justify-between mt-4">
-              <button onClick={() => setSelectedTask(null)}>Close</button>
-
-              {(role === "ceo" ||
-                (role === "manager" && selectedTask.user_id === user?.id)) && (
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      setSelectedTask(null);
-                      editTask(selectedTask);
-                    }}
-                    className="text-blue-600"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      deleteTask(selectedTask.id);
-                      setSelectedTask(null);
-                    }}
-                    className="text-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
             </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex justify-between items-center pt-2">
+            <button
+              onClick={() => setSelectedTask(null)}
+              className="text-gray-500 hover:text-black text-sm"
+            >
+              Close
+            </button>
+
+            {(role === "ceo" || task.user_id === user?.id) && (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setSelectedTask(null);
+                    editTask(task);
+                  }}
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => {
+                    deleteTask(task.id);
+                    setSelectedTask(null);
+                  }}
+                  className="text-red-600 text-sm hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         </div>
-      )}
-    </>
-  );
+      );
+    })()}
+  </div>
+)}
+</>
+);
 };
-
 export default Tasks;

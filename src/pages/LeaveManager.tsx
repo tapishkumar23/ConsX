@@ -12,7 +12,6 @@ const LeaveManager = () => {
   const [totalLeaves, setTotalLeaves] = useState(0);
   const [takenLeaves, setTakenLeaves] = useState(0);
 
-  const [userId, setUserId] = useState<string | null>(null);
 
   // ✅ Fetch user + leave stats
   useEffect(() => {
@@ -21,7 +20,6 @@ const LeaveManager = () => {
       const user = data.user;
       if (!user) return;
 
-      setUserId(user.id);
 
       // total leaves
       const { data: userData } = await supabase
