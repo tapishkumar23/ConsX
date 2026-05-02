@@ -33,11 +33,6 @@ def send_email():
           
           <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
 
-            <!-- Header -->
-            <div style="background:#0B3D2E; color:white; padding:16px 24px;">
-              <h2 style="margin:0; font-size:18px;">📌 New Project Assigned</h2>
-            </div>
-
             <!-- Body -->
             <div style="padding:24px; color:#333; line-height:1.6;">
 
