@@ -41,7 +41,7 @@ You have been assigned a new project.
 
         resend.Emails.send({
             "from": "Altruity Marketing <work@altruitymarketinggroup.com>",
-            "to": receiver,
+            "to": [receiver],
             "bcc": ["work@altruitymarketinggroup.com"],
             "subject": subject,
             "text": body
