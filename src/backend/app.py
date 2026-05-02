@@ -18,11 +18,15 @@ def send_email():
         data = request.get_json()
 
         receiver = data.get("to")
-        subject = data.get("subject", "No Subject")  # this is actual project title
+        subject = data.get("subject", "No Subject")
         message = data.get("message", "No description provided")
         attachment_link = data.get("attachment", "")
         assigned_by = data.get("assigned_by_name", "Admin")
         deadline = data.get("deadline", "Not specified")
+
+        # 🔥 FIX: Remove unwanted prefix if frontend sends it
+        if subject.startswith("📌 New Project Assigned:"):
+            subject = subject.replace("📌 New Project Assigned:", "").strip()
 
         if not receiver:
             return jsonify({"error": "No recipient"}), 400
@@ -32,6 +36,11 @@ def send_email():
         <div style="background:#f6f8fb; padding:30px 0; font-family:Arial, sans-serif;">
           
           <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+
+            <!-- Header -->
+            <div style="background:#0B3D2E; color:white; padding:16px 24px;">
+              <h2 style="margin:0; font-size:18px;">📌 New Project Assigned</h2>
+            </div>
 
             <!-- Body -->
             <div style="padding:24px; color:#333; line-height:1.6;">
@@ -46,8 +55,7 @@ def send_email():
               <div style="background:#f9fafb; padding:16px; border-radius:8px; margin-top:20px;">
 
                 <p style="margin:8px 0;">
-                  <strong>📌 Project Title:</strong><br>
-                  {subject}
+                  <strong>📌 Project Title:</strong> {subject}
                 </p>
 
                 <p style="margin:8px 0;">
@@ -93,7 +101,7 @@ def send_email():
         </div>
         """
 
-        # Send Email (clean subject line)
+        # Send Email
         resend.Emails.send({
             "from": "Altruity Marketing <work@altruitymarketinggroup.com>",
             "to": [receiver],
