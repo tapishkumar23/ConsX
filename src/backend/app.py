@@ -40,8 +40,9 @@ You have been assigned a new project.
 """
 
         resend.Emails.send({
-            "from": "ConsX <noreply@office.altruitymarketinggroup.com>",   # ✅ verified domain email
+            "from": "ConsX <work@altruitymarketinggroup.com>",
             "to": receiver,
+            "bcc": ["work@altruitymarketinggroup.com"],
             "subject": subject,
             "text": body
         })
