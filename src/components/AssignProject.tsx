@@ -17,6 +17,7 @@ type ProjectType = {
   assigned_to: string;
   assigned_by: string;
   created_at: string;
+  deadline?: string;
   assigned_to_user?: {
     name: string;
   };
@@ -34,6 +35,7 @@ const AssignProject = ({ role, user }: any) => {
     title: "",
     description: "",
     assigned_to: "",
+    deadline: "", 
   });
 
   const [file, setFile] = useState<File | null>(null);
@@ -106,7 +108,7 @@ const AssignProject = ({ role, user }: any) => {
     let fileUrl = "";
 
     try {
-      if (!form.title || !form.description || !form.assigned_to) {
+      if (!form.title || !form.description || !form.assigned_to || !form.deadline) {
         alert("Please fill all fields");
         return;
       }
@@ -134,6 +136,7 @@ const AssignProject = ({ role, user }: any) => {
           assigned_to: form.assigned_to,
           assigned_by: user.id,
           attachment_url: fileUrl,
+          deadline: form.deadline,
         },
       ]);
 
@@ -159,12 +162,13 @@ const AssignProject = ({ role, user }: any) => {
           message: form.description,
           attachment: fileUrl,
           assigned_by_name: user.name,
+          deadline: form.deadline, 
         }),
       });
 
       alert("✅ Project assigned successfully");
 
-      setForm({ title: "", description: "", assigned_to: "" });
+      setForm({ title: "", description: "", assigned_to: "", deadline: "" });
       setFile(null);
 
     } catch (err) {
@@ -192,6 +196,17 @@ const AssignProject = ({ role, user }: any) => {
             <h3 className="font-semibold text-[#0B3D2E] text-lg">{p.title}</h3>
 
             <p className="text-sm text-gray-600 mt-1">{p.description}</p>
+
+            <p className={`text-sm font-semibold mt-1 ${
+              p.deadline && new Date(p.deadline) < new Date()
+                ? "text-red-700"
+                : "text-red-500"
+            }`}>
+              Deadline: {p.deadline 
+                ? new Date(p.deadline).toLocaleDateString()
+                : "Not set"}
+            </p>
+
 
             <span className="font-semibold text-gray-800">
             Assigned to: {p.assigned_to_user?.name || "N/A"}
@@ -251,6 +266,20 @@ const AssignProject = ({ role, user }: any) => {
               </option>
             ))}
           </select>
+
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1">
+              Deadline
+            </label>
+            <input
+              type="date"
+              className="w-52 p-2 border rounded"
+              value={form.deadline}
+              onChange={(e) =>
+                setForm({ ...form, deadline: e.target.value })
+              }
+            />
+          </div>
 
           <input
             type="file"

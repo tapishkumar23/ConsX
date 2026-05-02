@@ -7,6 +7,7 @@ import resend
 app = Flask(__name__)
 CORS(app)
 
+# Set API Key
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 resend.api_key = RESEND_API_KEY
 
@@ -18,32 +19,95 @@ def send_email():
 
         receiver = data.get("to")
         subject = data.get("subject", "No Subject")
-        message = data.get("message", "")
+        message = data.get("message", "No description provided")
         attachment_link = data.get("attachment", "")
         assigned_by = data.get("assigned_by_name", "Admin")
+        deadline = data.get("deadline", "Not specified")
+
+        # 🔥 FIX: Remove unwanted prefix if frontend sends it
+        if subject.startswith("📌 New Project Assigned:"):
+            subject = subject.replace("📌 New Project Assigned:", "").strip()
 
         if not receiver:
             return jsonify({"error": "No recipient"}), 400
 
-        body = f"""
-You have been assigned a new project.
+        # HTML Email Template
+        html_body = f"""
+        <div style="background:#f6f8fb; padding:30px 0; font-family:Arial, sans-serif;">
+          
+          <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
 
-📌 Title: {subject}
+            <!-- Header -->
+            <div style="background:#0B3D2E; color:white; padding:16px 24px;">
+              <h2 style="margin:0; font-size:18px;">📌 New Project Assigned</h2>
+            </div>
 
-📝 Description:
-{message}
+            <!-- Body -->
+            <div style="padding:24px; color:#333; line-height:1.6;">
 
-👤 Assigned by: {assigned_by}
+              <p style="margin-top:0;">Hello,</p>
 
-📎 Attachment:
-{attachment_link if attachment_link else "No attachment"}
-"""
+              <p>
+                You’ve been assigned a new project. Please review the details below:
+              </p>
 
+              <!-- Card -->
+              <div style="background:#f9fafb; padding:16px; border-radius:8px; margin-top:20px;">
+
+                <p style="margin:8px 0;">
+                  <strong>📌 Project Title:</strong> {subject}
+                </p>
+
+                <p style="margin:8px 0;">
+                  <strong>📝 Description:</strong><br>
+                  {message}
+                </p>
+
+                <p style="margin:8px 0;">
+                  <strong>📅 Deadline:</strong>
+                  <span style="color:#d32f2f; font-weight:bold;">
+                    {deadline}
+                  </span>
+                </p>
+
+                <p style="margin:8px 0;">
+                  <strong>👤 Assigned by:</strong> {assigned_by}
+                </p>
+
+                {f'''
+                <p style="margin:8px 0;">
+                  <strong>📎 Attachment:</strong><br>
+                  <a href="{attachment_link}" style="color:#0B3D2E; text-decoration:none; font-weight:500;">
+                    View Attachment
+                  </a>
+                </p>
+                ''' if attachment_link else ""}
+
+              </div>
+
+              <!-- Footer note -->
+              <p style="margin-top:24px; font-size:13px; color:#777;">
+                Please ensure timely completion of the task.
+              </p>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="background:#f1f3f5; padding:12px 24px; text-align:center; font-size:12px; color:#888;">
+              This is an automated email from ConsX
+            </div>
+
+          </div>
+        </div>
+        """
+
+        # Send Email
         resend.Emails.send({
-            "from": "noreply@consx.app",   # ✅ verified domain email
-            "to": receiver,
-            "subject": subject,
-            "text": body
+            "from": "Altruity Marketing <work@altruitymarketinggroup.com>",
+            "to": [receiver],
+            "bcc": ["work@altruitymarketinggroup.com"],
+            "subject": f"Project Assigned: {subject}",
+            "html": html_body
         })
 
         return jsonify({"status": "sent"}), 200
