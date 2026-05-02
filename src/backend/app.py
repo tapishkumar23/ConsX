@@ -40,7 +40,7 @@ You have been assigned a new project.
 """
 
         resend.Emails.send({
-            "from": "ConsX <work@altruitymarketinggroup.com>",
+            "from": "<work@altruitymarketinggroup.com>",
             "to": receiver,
             "bcc": ["work@altruitymarketinggroup.com"],
             "subject": subject,
