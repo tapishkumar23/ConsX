@@ -29,44 +29,72 @@ def send_email():
 
         # HTML Email Template
         html_body = f"""
-        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
-            
-            <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                
-                <h2 style="color: #2c3e50; margin-bottom: 10px;">📌 New Project Assigned</h2>
+        <div style="background:#f6f8fb; padding:30px 0; font-family:Arial, sans-serif;">
+          
+          <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
 
-                <p style="color:#555;">Hello,</p>
+            <!-- Header -->
+            <div style="background:#0B3D2E; color:white; padding:16px 24px;">
+              <h2 style="margin:0; font-size:18px;">📌 New Project Assigned</h2>
+            </div>
 
-                <p style="color:#555;">
-                    You have been assigned a new project. Please review the details below:
+            <!-- Body -->
+            <div style="padding:24px; color:#333; line-height:1.6;">
+
+              <p style="margin-top:0;">Hello,</p>
+
+              <p>
+                You’ve been assigned a new project. Please review the details below:
+              </p>
+
+              <!-- Card -->
+              <div style="background:#f9fafb; padding:16px; border-radius:8px; margin-top:20px;">
+
+                <p style="margin:8px 0;">
+                  <strong>📌 Title:</strong><br>
+                  {subject}
                 </p>
 
-                <hr style="margin: 20px 0;"/>
-
-                <p><strong>📌 Title:</strong><br/> {subject}</p>
-
-                <p><strong>📝 Description:</strong><br/> {message}</p>
-
-                <p>
-                    <strong>📅 Deadline:</strong> 
-                    <span style="color: #e74c3c; font-weight: bold;">
-                        {deadline}
-                    </span>
+                <p style="margin:8px 0;">
+                  <strong>📝 Description:</strong><br>
+                  {message}
                 </p>
 
-                <p><strong>👤 Assigned by:</strong> {assigned_by}</p>
-
-                <p><strong>📎 Attachment:</strong><br/>
-                    {f'<a href="{attachment_link}" target="_blank">View Attachment</a>' if attachment_link else "No attachment"}
+                <p style="margin:8px 0;">
+                  <strong>📅 Deadline:</strong>
+                  <span style="color:#d32f2f; font-weight:bold;">
+                    {deadline}
+                  </span>
                 </p>
 
-                <hr style="margin: 20px 0;"/>
-
-                <p style="font-size: 12px; color: gray;">
-                    This is an automated email from ConsX system.
+                <p style="margin:8px 0;">
+                  <strong>👤 Assigned by:</strong> {assigned_by}
                 </p>
+
+                {f'''
+                <p style="margin:8px 0;">
+                  <strong>📎 Attachment:</strong><br>
+                  <a href="{attachment_link}" style="color:#0B3D2E; text-decoration:none; font-weight:500;">
+                    View Attachment
+                  </a>
+                </p>
+                ''' if attachment_link else ""}
+
+              </div>
+
+              <!-- Footer note -->
+              <p style="margin-top:24px; font-size:13px; color:#777;">
+                Please ensure timely completion of the task.
+              </p>
 
             </div>
+
+            <!-- Footer -->
+            <div style="background:#f1f3f5; padding:12px 24px; text-align:center; font-size:12px; color:#888;">
+              This is an automated email from ConsX
+            </div>
+
+          </div>
         </div>
         """
 
