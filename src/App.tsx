@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import UserDetails from "./pages/UserDetails";
 import ApplyLeave from "./pages/ApplyLeave";
+import LeaveManager from "./pages/LeaveManager"; // ✅ NEW
 import HRLeaves from "./pages/HRLeaves";
 import CompanyPolicies from "./components/Policies";
 
@@ -34,7 +35,17 @@ function App() {
             }
           />
 
-          {/* Apply Leave */}
+          {/* Leave Manager (NEW PAGE) */}
+          <Route
+            path="/leave-manager"
+            element={
+              <ProtectedRoute>
+                <LeaveManager />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* (Optional) Keep old Apply Leave if needed */}
           <Route
             path="/apply-leave"
             element={
@@ -53,6 +64,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           {/* Policies */}
           <Route path="/policies" element={<CompanyPolicies />} />
 

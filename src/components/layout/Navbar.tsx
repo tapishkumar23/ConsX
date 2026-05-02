@@ -12,8 +12,6 @@ const Navbar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
-  const [leaveBalance, setLeaveBalance] = useState<number>(0);
-
   const notificationRef = useRef<HTMLDivElement | null>(null);
 
   // ✅ Fetch user + leave balance + role
@@ -34,13 +32,12 @@ const Navbar = () => {
 
         const { data: userData, error: dbError } = await supabase
           .from("users")
-          .select("name, leave_balance, role") // ✅ role added
+          .select("name, role")
           .eq("id", user.id)
           .single();
 
         if (!dbError && userData) {
           setName(userData.name || fallback);
-          setLeaveBalance(userData.leave_balance ?? 0);
           setRole(userData.role?.trim().toLowerCase() || "employee");
         } else {
           setName(fallback);
@@ -148,13 +145,6 @@ const Navbar = () => {
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
-  // 🎯 Leave color logic
-  const getLeaveColor = () => {
-  if (leaveBalance <= 5) return "text-red-400";        // 0–5 → RED
-  if (leaveBalance <= 10) return "text-yellow-400";    // 6–10 → YELLOW
-  return "text-green-400";                             // 11+ → GREEN
-};
-
   return (
     <div className="h-16 flex items-center justify-between px-8 bg-gradient-to-r from-gray-800 via-gray-900 to-black border-b border-gray-800 shadow-sm">
       
@@ -216,17 +206,12 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Leave Balance */}
-        <div className={`text-xs font-medium ${getLeaveColor()}`}>
-          Leaves: {leaveBalance}
-        </div>
-
         {/* Apply Leave */}
         <button
-          onClick={() => navigate("/apply-leave")}
+          onClick={() => navigate("/leave-manager")}
           className="text-sm text-gray-300 hover:text-white"
         >
-          Apply Leave
+          Leave Manager
         </button>
 
         {/* 🔥 HR PANEL (FIXED ISSUE) */}
