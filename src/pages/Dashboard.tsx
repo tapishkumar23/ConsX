@@ -13,7 +13,6 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [role, setRole] = useState<string>("employee");
 
-  // 🔥 Fetch user role
   useEffect(() => {
     const fetchRole = async () => {
       if (!user) return;
@@ -36,7 +35,7 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="p-6 min-h-screen space-y-8 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-200 ">
+      <div className="p-6 min-h-screen space-y-8 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-200">
 
         {/* TOP GRID */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -47,9 +46,7 @@ const Dashboard = () => {
               <h2 className="text-[#0B3D2E] font-semibold">Calendar</h2>
               <div className="w-2 h-2 rounded-full bg-[#C6A15B]"></div>
             </div>
-
             <div className="h-[1px] bg-gradient-to-r from-[#C6A15B]/30 to-transparent mb-4"></div>
-
             <CalendarView />
           </section>
 
@@ -59,9 +56,7 @@ const Dashboard = () => {
               <h2 className="text-[#0B3D2E] font-semibold">Tasks</h2>
               <div className="w-2 h-2 rounded-full bg-[#C6A15B]"></div>
             </div>
-
             <div className="h-[1px] bg-gradient-to-r from-[#C6A15B]/30 to-transparent mb-4"></div>
-
             <div className="space-y-4">
               <Tasks />
             </div>
@@ -69,10 +64,9 @@ const Dashboard = () => {
         </div>
 
         <section className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-  <AssignProject role={role} user={user} />
-</section>
+          <AssignProject role={role} user={user} />
+        </section>
 
-        {/* 🔥 HIDE FOR backend_employee */}
         {!isBackendEmployee && (
           <>
             {/* CRM */}
@@ -81,9 +75,7 @@ const Dashboard = () => {
                 <h2 className="text-[#0B3D2E] font-semibold">CRM Leads</h2>
                 <div className="w-2 h-2 rounded-full bg-[#C6A15B]"></div>
               </div>
-
               <div className="h-[1px] bg-gradient-to-r from-[#C6A15B]/30 to-transparent mb-4"></div>
-
               <CRM />
             </section>
 
@@ -93,9 +85,7 @@ const Dashboard = () => {
                 <h2 className="text-[#0B3D2E] font-semibold">Sales Pipeline</h2>
                 <div className="w-2 h-2 rounded-full bg-[#C6A15B]"></div>
               </div>
-
               <div className="h-[1px] bg-gradient-to-r from-[#C6A15B]/30 to-transparent mb-4"></div>
-
               <CRMBoard />
             </section>
           </>

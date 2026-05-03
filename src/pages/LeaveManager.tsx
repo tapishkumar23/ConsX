@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../Supabase/supabase";
-
+import Layout from "../components/layout/Layout";
 const LeaveManager = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
