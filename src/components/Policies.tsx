@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../Supabase/supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../pages/AuthContext";
-import Layout from "../components/layout/Layout";
 
 interface Policy {
   id: string;
