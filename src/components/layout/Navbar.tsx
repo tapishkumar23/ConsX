@@ -3,7 +3,7 @@ import { supabase } from "../../Supabase/supabase";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/": "Dashboard",
+  "/": "Office",
   "/policies": "Company Policies",
   "/apply-leave": "Leave Manager",
   "/hr-leaves": "HR Panel",
