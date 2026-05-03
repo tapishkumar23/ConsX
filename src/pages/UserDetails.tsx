@@ -24,7 +24,7 @@ const UserDetails = () => {
   const isOwnProfile = selectedUserId === user?.id;
 
   /* ── can this viewer see this profile? ── */
-  const canViewSelected = (targetRole: string) => {
+  const canViewSelected = (targetRole: UserRole) => {
     if (!role) return false;
     if (isOwnProfile) return true;
     if (role === "ceo" || role === "hr") return true;
