@@ -71,7 +71,6 @@ const Sidebar = ({
   const { user } = useAuth();
 
   const [role, setRole] = useState<string>("");
-  const [leaveBalance, setLeaveBalance] = useState<number>(0);
 
   useEffect(() => {
     const fetch = async () => {
@@ -83,7 +82,6 @@ const Sidebar = ({
         .single();
       if (data) {
         setRole(data.role?.trim().toLowerCase() ?? "employee");
-        setLeaveBalance(data.leave_balance ?? 0);
       }
     };
     fetch();
