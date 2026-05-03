@@ -146,9 +146,9 @@ const CompanyPolicies = () => {
     });
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen w-full bg-gray-50 font-sans">
       {/* HEADER */}
-      <div className="bg-white border-b px-8 py-4 flex items-center justify-between">
+      <div className="bg-white border-b px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/")}
@@ -175,10 +175,14 @@ const CompanyPolicies = () => {
         )}
       </div>
 
-      <div className="flex h-[calc(100vh-65px)]">
+      <div className="flex flex-col lg:flex-row h-screen w-full">
 
         {/* LEFT: Policy Index */}
-        <div className="w-72 border-r bg-white flex flex-col flex-shrink-0">
+        <div
+          className={`w-full lg:w-72 border-b lg:border-r bg-white flex flex-col flex-shrink-0 
+          max-h-[45vh] sm:max-h-[50vh] lg:max-h-none
+          ${selectedPolicy ? "hidden lg:flex" : "flex"}`}
+        >
           <div className="px-4 py-3 border-b">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
               All Policies
@@ -197,7 +201,7 @@ const CompanyPolicies = () => {
                 <div
                   key={policy.id}
                   onClick={() => handleOpenPolicy(policy)}
-                  className={`group relative flex items-start gap-3 px-4 py-3 border-b cursor-pointer transition border-l-2 ${
+                  className={`group relative flex items-start gap-3 px-3 sm:px-4 py-3 border-b cursor-pointer transition border-l-2 ${
                     selectedPolicy?.id === policy.id
                       ? "bg-gray-50 border-l-black"
                       : "border-l-transparent hover:bg-gray-50"
@@ -254,7 +258,7 @@ const CompanyPolicies = () => {
         </div>
 
         {/* RIGHT: PDF Viewer */}
-        <div className="flex-1 flex flex-col bg-gray-100">
+        <div className="flex-1 flex flex-col bg-gray-100 w-full h-full">
           {!selectedPolicy ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-8">
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm">
@@ -270,7 +274,15 @@ const CompanyPolicies = () => {
           ) : (
             <>
               {/* Viewer header */}
-              <div className="bg-white border-b px-6 py-3 flex items-center justify-between">
+              <div className="bg-white border-b px-4 sm:px-6 py-3 flex items-center justify-between">
+                {selectedPolicy && (
+                  <button
+                    onClick={() => { setSelectedPolicy(null); setPdfUrl(null); }}
+                    className="lg:hidden text-xs text-blue-500 mr-2"
+                  >
+                    ← Back
+                  </button>
+                )}
                 <div>
                   <h2 className="text-sm font-semibold text-gray-900">
                     {selectedPolicy.title}
@@ -293,7 +305,7 @@ const CompanyPolicies = () => {
 
               {/* PDF viewer with right-click block */}
               <div
-                className="flex-1 relative select-none"
+                className="flex-1 relative select-none h-[calc(100vh-120px)] lg:h-full"
                 onContextMenu={(e) => e.preventDefault()}
               >
                 {loadingPdf && (
@@ -336,7 +348,7 @@ const CompanyPolicies = () => {
       {/* UPLOAD MODAL (HR only) */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-2 sm:mx-auto p-5 sm:p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold">Upload New Policy</h2>
               <button
@@ -421,7 +433,7 @@ const CompanyPolicies = () => {
       {/* DELETE CONFIRM MODAL */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-2 sm:mx-auto p-5 sm:p-6">
             <h2 className="text-base font-semibold mb-2">Delete Policy?</h2>
             <p className="text-sm text-gray-500 mb-5">
               <span className="font-medium text-gray-800">{deleteTarget.title}</span>{" "}

@@ -209,7 +209,7 @@ const UserDetails = () => {
     <div className="min-h-screen bg-gray-50">
 
       {/* TOP BAR */}
-      <div className="bg-white border-b px-8 py-4 flex items-center justify-between">
+      <div className="bg-white border-b px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/")}
@@ -239,10 +239,10 @@ const UserDetails = () => {
         )}
       </div>
 
-      <div className="flex h-[calc(100vh-65px)]">
+      <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-65px)]">
 
         {/* ── SIDEBAR ── */}
-        <div className="w-64 border-r bg-white flex flex-col flex-shrink-0 overflow-y-auto">
+        <div className="w-full lg:w-64 border-b lg:border-r bg-white flex flex-col flex-shrink-0 overflow-y-auto max-h-[40vh] lg:max-h-none">
 
           {/* My Profile */}
           <div className="p-3 border-b">
@@ -315,10 +315,10 @@ const UserDetails = () => {
         </div>
 
         {/* ── MAIN CONTENT ── */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
           {/* Section Nav */}
-          <div className="w-48 border-r bg-white flex flex-col flex-shrink-0 pt-4">
+          <div className="w-full lg:w-48 border-b lg:border-r bg-white flex lg:flex-col overflow-x-auto lg:overflow-visible">
             {sections.map((s) => (
               <button
                 key={s.id}
@@ -345,7 +345,7 @@ const UserDetails = () => {
           </div>
 
           {/* Form Area */}
-          <div className="flex-1 overflow-y-auto p-8">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
 
             {/* ── SECTION 1: Employee Info ── */}
             {activeSection === "employee" && (
@@ -355,7 +355,7 @@ const UserDetails = () => {
                   subtitle="Basic personal and employment details"
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Field label="Full Name" name="name" placeholder="John Doe" />
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">Email</label>
@@ -366,7 +366,7 @@ const UserDetails = () => {
                     />
                   </div>
 
-                  <Field label="Phone Number" name="phone" type="tel" placeholder="+91 98765 43210" />
+                  <Field label="Phone Number" name="phone" type="tel" placeholder="+91" />
                   <Field label="Date of Birth" name="dob" type="date" />
 
                   <Field label="Date of Joining" name="joining_date" type="date" />
@@ -406,7 +406,7 @@ const UserDetails = () => {
 
             {/* ── SECTION 2: Emergency Contact ── */}
             {activeSection === "emergency" && (
-              <div className="max-w-2xl">
+              <div className="max-w-2xl w-full">
                 <SectionTitle
                   title="Emergency Contact"
                   subtitle="Parent details for emergency situations"
@@ -418,7 +418,7 @@ const UserDetails = () => {
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <Field label="Father's Name" name="father_name" placeholder="Full name" />
-                    <Field label="Father's Phone" name="father_phone" type="tel" placeholder="+91 98765 43210" />
+                    <Field label="Father's Phone" name="father_phone" type="tel" placeholder="+91" />
                     <Field label="Father's Date of Birth" name="father_dob" type="date" />
                   </div>
                 </div>
@@ -429,7 +429,7 @@ const UserDetails = () => {
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <Field label="Mother's Name" name="mother_name" placeholder="Full name" />
-                    <Field label="Mother's Phone" name="mother_phone" type="tel" placeholder="+91 98765 43210" />
+                    <Field label="Mother's Phone" name="mother_phone" type="tel" placeholder="+91" />
                     <Field label="Mother's Date of Birth" name="mother_dob" type="date" />
                   </div>
                 </div>
