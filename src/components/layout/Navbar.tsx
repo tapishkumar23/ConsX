@@ -177,7 +177,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   {/* ICON */}
   <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white shadow-md">
     <img
-      src="public\altruity_marketing_group_icon.png"
+      src="\altruity_marketing_group_icon.png"
       alt="icon"
       className="w-6 h-6 object-contain"
     />
