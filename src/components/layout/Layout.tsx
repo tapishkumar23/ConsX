@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { ReactNode } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
@@ -7,17 +8,37 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  return (
-    <div className="flex h-screen overflow-hidden bg-gray-100">
-      {/* Left Sidebar */}
-      <Sidebar />
+  const [collapsed, setCollapsed] = useState(false);
 
-      {/* Right side: Navbar on top, scrollable content below */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <Navbar />
+  return (
+    <div className="flex h-screen bg-gray-100">
+
+      {/* SIDEBAR */}
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+
+      {/* BACKDROP */}
+      {!collapsed && (
+        <div
+          onClick={() => setCollapsed(true)}
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30"
+        />
+      )}
+
+      {/* RIGHT SIDE */}
+      <div className="flex flex-col flex-1 min-w-0">
+
+        {/* NAVBAR */}
+        <div className="h-16 flex-shrink-0 bg-gradient-to-r from-gray-900 to-black border-b border-gray-200">
+          <Navbar toggleSidebar={() => setCollapsed(!collapsed)} />
+        </div>
+
+        {/* MAIN CONTENT */}
         <main className="flex-1 overflow-y-auto">
-          {children}
+          <div className="max-w-7xl mx-auto p-6 space-y-6">
+            {children}
+          </div>
         </main>
+
       </div>
     </div>
   );

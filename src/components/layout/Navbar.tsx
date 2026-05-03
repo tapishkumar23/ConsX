@@ -10,7 +10,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/user-details": "Employee Profiles",
 };
 
-const Navbar = () => {
+const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -146,12 +146,50 @@ const Navbar = () => {
   };
 
   return (
-    <div className="h-16 flex items-center justify-between px-6 bg-gradient-to-r from-gray-900 to-black border-b border-white/5 flex-shrink-0">
+    <div className="h-16 flex items-center justify-between px-6 bg-gradient-to-r from-gray-900 to-black border-b border-white/5 flex-shrink-0 relative">
 
-      {/* Left — page title */}
-      <h2 className="text-sm font-semibold text-white tracking-wide">
-        {pageTitle}
-      </h2>
+{/* CENTER LOGO */}
+<div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 pointer-events-none">
+  <img
+    src="/altruity_marketing_group_logo.png"
+    alt="Altruity"
+    className="w-[180px] md:w-[220px] object-contain"
+  />
+</div>
+
+<div className="flex items-center gap-4">
+  
+<button
+  onClick={toggleSidebar}
+  className="p-2 rounded-md hover:bg-white/10 transition"
+>
+  <svg
+    className="w-5 h-5 text-white"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    viewBox="0 0 24 24"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+</button>
+
+  {/* ICON */}
+  <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white shadow-md">
+    <img
+      src="public\altruity_marketing_group_icon.png"
+      alt="icon"
+      className="w-6 h-6 object-contain"
+    />
+  </div>
+
+
+  {/* PAGE TITLE */}
+  <h2 className="text-base font-semibold text-white tracking-wide">
+    {pageTitle}
+  </h2>
+
+</div>
 
       {/* Right */}
       <div className="flex items-center gap-2">

@@ -59,14 +59,19 @@ const HR_NAV_ITEMS = [
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({
+  collapsed,
+  setCollapsed,
+}: {
+  collapsed: boolean;
+  setCollapsed: (value: boolean) => void;
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
 
   const [role, setRole] = useState<string>("");
   const [leaveBalance, setLeaveBalance] = useState<number>(0);
-  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -89,50 +94,47 @@ const Sidebar = () => {
 
   const isHRorCEO = role === "hr" || role === "ceo";
 
-  const leaveColor =
-    leaveBalance <= 5 ? "text-red-400" :
-    leaveBalance <= 10 ? "text-yellow-400" :
-    "text-emerald-400";
-
-  const leaveBg =
-    leaveBalance <= 5 ? "bg-red-500/10 border-red-500/20" :
-    leaveBalance <= 10 ? "bg-yellow-500/10 border-yellow-500/20" :
-    "bg-emerald-500/10 border-emerald-500/20";
 
   return (
     <aside
-      className={`flex flex-col h-screen bg-gray-900 border-r border-white/5 transition-all duration-300 flex-shrink-0 ${
-        collapsed ? "w-[60px]" : "w-52"
-      }`}
+      className={`fixed top-0 left-0 bottom-0 z-40 flex flex-col bg-white border-r border-gray-200 shadow-md transform transition-transform duration-300 ${
+        collapsed ? "-translate-x-full" : "translate-x-0"
+      } w-[240px]`}
     >
       {/* Brand — same height as Navbar (h-16) */}
-      <div className="flex items-center justify-between px-3 h-16 border-b border-white/5 flex-shrink-0">
-        {!collapsed && (
-          <span className="text-white font-bold text-sm tracking-widest uppercase pl-1">
-            ConsX
-          </span>
-        )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className={`text-gray-500 hover:text-white transition p-1.5 rounded-md hover:bg-white/10 ${
-            collapsed ? "mx-auto" : "ml-auto"
-          }`}
-          title={collapsed ? "Expand" : "Collapse"}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            {collapsed ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
-            )}
-          </svg>
-        </button>
+      <div className="flex items-center px-4 h-16 border-b border-gray-200">
+    {!collapsed && (
+  <div className="flex items-center gap-3 pl-1">
+    
+    {/* BACK BUTTON */}
+    <button
+      onClick={() => setCollapsed(true)}
+      className="p-2 rounded-md hover:bg-gray-100 transition"
+    >
+      <svg
+        className="w-4 h-4 text-gray-700"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    {/* TITLE */}
+    <span className="text-gray-900 font-semibold text-sm">
+      Sidebar
+    </span>
+
+  </div>
+)}
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
         {!collapsed && (
-          <p className="text-[10px] text-gray-600 uppercase tracking-widest px-2 pb-2 font-medium">
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest px-2 pb-2 font-medium">
             Main
           </p>
         )}
@@ -144,8 +146,8 @@ const Sidebar = () => {
             title={collapsed ? item.label : undefined}
             className={`w-full flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm transition-all ${
               isActive(item.path)
-                ? "bg-white text-gray-900 font-medium shadow-sm"
-                : "text-gray-400 hover:text-white hover:bg-white/[0.07]"
+                ? "bg-gray-900 text-white font-medium"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             } ${collapsed ? "justify-center" : ""}`}
           >
             <span className="flex-shrink-0">{item.icon}</span>
@@ -155,7 +157,7 @@ const Sidebar = () => {
 
         {isHRorCEO && (
           <>
-            <div className={`${collapsed ? "border-t border-white/5 mx-1 my-3" : "pt-4 pb-1"}`}>
+            <div className={`${collapsed ? "border-t border-gray-200 mx-1 my-3" : "pt-4 pb-1"}`}>
               {!collapsed && (
                 <p className="text-[10px] text-gray-600 uppercase tracking-widest px-2 font-medium">
                   Management
@@ -171,7 +173,7 @@ const Sidebar = () => {
                 className={`w-full flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm transition-all ${
                   isActive(item.path)
                     ? "bg-white text-gray-900 font-medium shadow-sm"
-                    : "text-gray-400 hover:text-white hover:bg-white/[0.07]"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 } ${collapsed ? "justify-center" : ""}`}
               >
                 <span className="flex-shrink-0">{item.icon}</span>
@@ -181,28 +183,6 @@ const Sidebar = () => {
           </>
         )}
       </nav>
-
-      {/* Leave Balance */}
-      <div className={`px-2 pb-3 ${collapsed ? "flex justify-center" : ""}`}>
-        {collapsed ? (
-          <div
-            title={`${leaveBalance} days leave remaining`}
-            className={`w-9 h-9 rounded-lg border flex items-center justify-center ${leaveBg}`}
-          >
-            <span className={`text-xs font-bold ${leaveColor}`}>{leaveBalance}</span>
-          </div>
-        ) : (
-          <div className={`rounded-lg border px-3 py-2.5 ${leaveBg}`}>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-1">
-              Leave Balance
-            </p>
-            <div className="flex items-baseline gap-1">
-              <span className={`text-2xl font-bold ${leaveColor}`}>{leaveBalance}</span>
-              <span className="text-xs text-gray-500">days remaining</span>
-            </div>
-          </div>
-        )}
-      </div>
     </aside>
   );
 };
