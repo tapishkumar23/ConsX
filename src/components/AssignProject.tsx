@@ -292,7 +292,7 @@ const AssignProject = ({ role, user }: any) => {
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-[#0B3D2E] text-white py-3 rounded-lg font-medium hover:opacity-90 transition shadow-sm"
+             className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-900 transition shadow-sm"
           >
             Send Project
           </button>
