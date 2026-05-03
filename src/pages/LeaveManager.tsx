@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../Supabase/supabase";
-<<<<<<< HEAD
 import Layout from "../components/layout/Layout";
-=======
 import { useNavigate } from "react-router-dom";
 
->>>>>>> 9f0b629299559226e4095baee2edbcfcff8a1e2d
+
 const LeaveManager = () => {
   const navigate = useNavigate();
 
