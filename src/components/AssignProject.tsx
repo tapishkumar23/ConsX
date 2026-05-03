@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../Supabase/supabase";
 
+
 // 🔥 TYPES
 type UserType = {
   id: string;
@@ -179,11 +180,11 @@ const AssignProject = ({ role, user }: any) => {
 
   // 🔥 FINAL UI
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       {/* 🔥 PROJECTS (VISIBLE TO ALL) */}
-      <div className="bg-white p-5 rounded-xl shadow">
-        <h2 className="font-semibold mb-4">Projects</h2>
+      <div className="lg:col-span-2 bg-white/80 backdrop-blur-md p-6 rounded-2xl border border-gray-200 shadow-sm max-h-[500px] overflow-y-auto">
+        <h2 className="text-lg font-semibold text-gray-800 mb-5">Projects</h2>
 
         {projects.length === 0 && (
           <p className="text-gray-500 text-sm">
@@ -192,10 +193,10 @@ const AssignProject = ({ role, user }: any) => {
         )}
 
         {projects.map((p) => (
-          <div key={p.id} className="border border-gray-200 p-4 mb-4 rounded-xl shadow-sm hover:shadow-md transition bg-white">
-            <h3 className="font-semibold text-[#0B3D2E] text-lg">{p.title}</h3>
+          <div key={p.id} className="group p-5 mb-4 rounded-2xl border border-gray-200 bg-white hover:shadow-lg transition-all duration-200">
+            <h3 className="font-semibold text-lg text-gray-900 group-hover:text-[#0B3D2E] transition"> </h3>
 
-            <p className="text-sm text-gray-600 mt-1">{p.description}</p>
+            <p className="text-sm text-gray-500 mt-2 leading-relaxed">{p.description}</p>
 
             <p className={`text-sm font-semibold mt-1 ${
               p.deadline && new Date(p.deadline) < new Date()
@@ -229,13 +230,13 @@ const AssignProject = ({ role, user }: any) => {
 
       {/* 🔥 ONLY CEO / MANAGER CAN ASSIGN */}
       {!isEmployee && (
-        <div className="bg-white p-5 rounded-xl shadow">
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
           <h2 className="font-semibold mb-4">
             Assign Project via Mail
           </h2>
 
           <input
-            className="w-full mb-3 p-2 border rounded"
+            className="w-full mb-4 px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0B3D2E] focus:outline-none transition"
             placeholder="Title"
             value={form.title}
             onChange={(e) =>
@@ -244,7 +245,7 @@ const AssignProject = ({ role, user }: any) => {
           />
 
           <textarea
-            className="w-full mb-3 p-2 border rounded"
+            className="w-full mb-4 px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0B3D2E] focus:outline-none transition"
             placeholder="Description"
             value={form.description}
             onChange={(e) =>
@@ -253,7 +254,7 @@ const AssignProject = ({ role, user }: any) => {
           />
 
           <select
-            className="w-full mb-3 p-2 border rounded"
+            className="w-full mb-4 px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0B3D2E] focus:outline-none transition"
             value={form.assigned_to}
             onChange={(e) =>
               setForm({ ...form, assigned_to: e.target.value })
@@ -273,7 +274,7 @@ const AssignProject = ({ role, user }: any) => {
             </label>
             <input
               type="date"
-              className="w-52 p-2 border rounded"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0B3D2E]"
               value={form.deadline}
               onChange={(e) =>
                 setForm({ ...form, deadline: e.target.value })
@@ -291,7 +292,7 @@ const AssignProject = ({ role, user }: any) => {
 
           <button
             onClick={handleSubmit}
-            className="bg-[#0B3D2E] text-white px-4 py-2 rounded"
+             className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-900 transition shadow-sm"
           >
             Send Project
           </button>
