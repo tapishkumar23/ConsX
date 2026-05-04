@@ -157,7 +157,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   />
 </div>
 
-<div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+<div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 leading-none">
   
 <button
   onClick={toggleSidebar}
@@ -174,18 +174,8 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   </svg>
 </button>
 
-  {/* ICON */}
-  <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-white shadow-md">
-    <img
-      src="\altruity_marketing_group_icon.png"
-      alt="icon"
-      className="w-6 h-6 object-contain"
-    />
-  </div>
-
-
   {/* PAGE TITLE */}
-  <h2 className="text-sm sm:text-base font-semibold text-white tracking-wide truncate max-w-[120px] sm:max-w-none">
+  <h2 className="text-sm sm:text-base font-semibold text-white tracking-wide truncate max-w-[120px] sm:max-w-none leading-none">
     {pageTitle}
   </h2>
 
