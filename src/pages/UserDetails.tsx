@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../Supabase/supabase";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import Layout from "../components/layout/Layout";
 
 type UserRole = "ceo" | "hr" | "manager" | "employee" | "backend_employee";
 
 const UserDetails = () => {
-  const navigate = useNavigate();
   const { user, role } = useAuth();
 
   const [loading, setLoading] = useState(true);
@@ -206,317 +205,313 @@ const UserDetails = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
+      <div className="min-h-screen bg-gray-50">
 
-      {/* TOP BAR */}
-      <div className="bg-white border-b px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate("/")}
-            className="text-sm text-gray-500 hover:text-black transition"
-          >
-            Back to Dashboard
-          </button>
-          <span className="text-gray-300">|</span>
-          <h1 className="text-base font-semibold text-gray-900">Employee Profiles</h1>
-        </div>
-
-        {isHR && (
-          <div className="flex items-center gap-3">
-            {saveSuccess && (
-              <span className="text-xs text-emerald-600 font-medium">
-                Saved successfully
-              </span>
-            )}
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-5 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-65px)]">
-
-        {/* ── SIDEBAR ── */}
-        <div className="w-full lg:w-64 border-b lg:border-r bg-white flex flex-col flex-shrink-0 overflow-y-auto max-h-[40vh] lg:max-h-none">
-
-          {/* My Profile */}
-          <div className="p-3 border-b">
-            <p className="text-xs text-gray-400 uppercase tracking-wide px-2 mb-2">
-              My Profile
-            </p>
-            <div
-              onClick={() => setSelectedUserId(myProfile?.id)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition ${
-                selectedUserId === myProfile?.id
-                  ? "bg-black text-white"
-                  : "hover:bg-gray-100 text-gray-700"
-              }`}
-            >
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
-                selectedUserId === myProfile?.id ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
-              }`}>
-                {(myProfile?.name ?? "U")[0].toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{myProfile?.name ?? "—"}</p>
-                <p className={`text-xs capitalize truncate ${
-                  selectedUserId === myProfile?.id ? "text-white/60" : "text-gray-400"
-                }`}>
-                  {myProfile?.role}
-                </p>
-              </div>
-            </div>
+        {/* TOP BAR */}
+        <div className="bg-white border-b px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-4">
+            <span className="text-gray-300">|</span>
+            <h1 className="text-base font-semibold text-gray-900">Employee Profiles</h1>
           </div>
 
-          {/* Team Members */}
-          {teamMembers.length > 0 && (
-            <div className="p-3">
-              <p className="text-xs text-gray-400 uppercase tracking-wide px-2 mb-2">
-                Team Members
-              </p>
-              <div className="space-y-1">
-                {teamMembers.map((u) => (
-                  <div
-                    key={u.id}
-                    onClick={() => {
-                      if (canViewSelected(u.role)) setSelectedUserId(u.id);
-                    }}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${
-                      canViewSelected(u.role) ? "cursor-pointer" : "cursor-not-allowed opacity-40"
-                    } ${
-                      selectedUserId === u.id
-                        ? "bg-black text-white"
-                        : "hover:bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
-                      selectedUserId === u.id ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
-                    }`}>
-                      {(u.name ?? "U")[0].toUpperCase()}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{u.name ?? "—"}</p>
-                      <p className={`text-xs capitalize truncate ${
-                        selectedUserId === u.id ? "text-white/60" : "text-gray-400"
-                      }`}>
-                        {u.role}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {isHR && (
+            <div className="flex items-center gap-3">
+              {saveSuccess && (
+                <span className="text-xs text-emerald-600 font-medium">
+                  Saved successfully
+                </span>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-5 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
             </div>
           )}
         </div>
 
-        {/* ── MAIN CONTENT ── */}
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-65px)]">
 
-          {/* Section Nav */}
-          <div className="w-full lg:w-48 border-b lg:border-r bg-white flex lg:flex-col overflow-x-auto lg:overflow-visible">
-            {sections.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setActiveSection(s.id)}
-                className={`flex items-center gap-2.5 px-4 py-3 text-left text-sm transition border-l-2 ${
-                  activeSection === s.id
-                    ? "border-l-black text-gray-900 font-medium bg-gray-50"
-                    : "border-l-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+          {/* ── SIDEBAR ── */}
+          <div className="w-full lg:w-64 border-b lg:border-r bg-white flex flex-col flex-shrink-0 overflow-y-auto max-h-[40vh] lg:max-h-none">
+
+            {/* My Profile */}
+            <div className="p-3 border-b">
+              <p className="text-xs text-gray-400 uppercase tracking-wide px-2 mb-2">
+                My Profile
+              </p>
+              <div
+                onClick={() => setSelectedUserId(myProfile?.id)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition ${
+                  selectedUserId === myProfile?.id
+                    ? "bg-black text-white"
+                    : "hover:bg-gray-100 text-gray-700"
                 }`}
               >
-                <span className="text-base">{s.icon}</span>
-                <span className="leading-tight">{s.label}</span>
-              </button>
-            ))}
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
+                  selectedUserId === myProfile?.id ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                }`}>
+                  {(myProfile?.name ?? "U")[0].toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{myProfile?.name ?? "—"}</p>
+                  <p className={`text-xs capitalize truncate ${
+                    selectedUserId === myProfile?.id ? "text-white/60" : "text-gray-400"
+                  }`}>
+                    {myProfile?.role}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            {/* HR badge */}
-            {isHR && (
-              <div className="mt-auto p-4">
-                <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full font-medium">
-                  HR — editing enabled
-                </span>
+            {/* Team Members */}
+            {teamMembers.length > 0 && (
+              <div className="p-3">
+                <p className="text-xs text-gray-400 uppercase tracking-wide px-2 mb-2">
+                  Team Members
+                </p>
+                <div className="space-y-1">
+                  {teamMembers.map((u) => (
+                    <div
+                      key={u.id}
+                      onClick={() => {
+                        if (canViewSelected(u.role)) setSelectedUserId(u.id);
+                      }}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${
+                        canViewSelected(u.role) ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+                      } ${
+                        selectedUserId === u.id
+                          ? "bg-black text-white"
+                          : "hover:bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
+                        selectedUserId === u.id ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                      }`}>
+                        {(u.name ?? "U")[0].toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{u.name ?? "—"}</p>
+                        <p className={`text-xs capitalize truncate ${
+                          selectedUserId === u.id ? "text-white/60" : "text-gray-400"
+                        }`}>
+                          {u.role}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
-          {/* Form Area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {/* ── MAIN CONTENT ── */}
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
-            {/* ── SECTION 1: Employee Info ── */}
-            {activeSection === "employee" && (
-              <div className="max-w-2xl">
-                <SectionTitle
-                  title="Employee Information"
-                  subtitle="Basic personal and employment details"
-                />
+            {/* Section Nav */}
+            <div className="w-full lg:w-48 border-b lg:border-r bg-white flex lg:flex-col overflow-x-auto lg:overflow-visible">
+              {sections.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveSection(s.id)}
+                  className={`flex items-center gap-2.5 px-4 py-3 text-left text-sm transition border-l-2 ${
+                    activeSection === s.id
+                      ? "border-l-black text-gray-900 font-medium bg-gray-50"
+                      : "border-l-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+                  }`}
+                >
+                  <span className="text-base">{s.icon}</span>
+                  <span className="leading-tight">{s.label}</span>
+                </button>
+              ))}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <Field label="Full Name" name="name" placeholder="John Doe" />
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Email</label>
-                    <input
-                      value={form.email ?? ""}
-                      disabled
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-default outline-none"
-                    />
-                  </div>
+              {/* HR badge */}
+              {isHR && (
+                <div className="mt-auto p-4">
+                  <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full font-medium">
+                    HR — editing enabled
+                  </span>
+                </div>
+              )}
+            </div>
 
-                  <Field label="Phone Number" name="phone" type="tel" placeholder="+91" />
-                  <Field label="Date of Birth" name="dob" type="date" />
+            {/* Form Area */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
 
-                  <Field label="Date of Joining" name="joining_date" type="date" />
-                  <Field
-                    label="Gender"
-                    name="gender"
-                    options={["Male", "Female", "Other", "Prefer not to say"]}
+              {/* ── SECTION 1: Employee Info ── */}
+              {activeSection === "employee" && (
+                <div className="max-w-2xl">
+                  <SectionTitle
+                    title="Employee Information"
+                    subtitle="Basic personal and employment details"
                   />
 
-                  <Field
-                    label="Marital Status"
-                    name="marital_status"
-                    options={["Single", "Married", "Divorced", "Widowed"]}
-                  />
-                  <Field
-                    label="Blood Group"
-                    name="blood_group"
-                    options={["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"]}
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <Field label="Full Name" name="name" placeholder="John Doe" />
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Email</label>
+                      <input
+                        value={form.email ?? ""}
+                        disabled
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-default outline-none"
+                      />
+                    </div>
 
-                  <Field label="Nationality" name="nationality" placeholder="Indian" />
-                  <Field label="Department" name="department" placeholder="Engineering" />
+                    <Field label="Phone Number" name="phone" type="tel" placeholder="+91" />
+                    <Field label="Date of Birth" name="dob" type="date" />
 
-                  <Field label="Designation" name="designation" placeholder="Software Engineer" />
-
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Role</label>
-                    <input
-                      value={form.role ?? ""}
-                      disabled
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-default outline-none capitalize"
+                    <Field label="Date of Joining" name="joining_date" type="date" />
+                    <Field
+                      label="Gender"
+                      name="gender"
+                      options={["Male", "Female", "Other", "Prefer not to say"]}
                     />
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* ── SECTION 2: Emergency Contact ── */}
-            {activeSection === "emergency" && (
-              <div className="max-w-2xl w-full">
-                <SectionTitle
-                  title="Emergency Contact"
-                  subtitle="Parent details for emergency situations"
-                />
-
-                <div className="mb-6">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                    Father's Details
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Father's Name" name="father_name" placeholder="Full name" />
-                    <Field label="Father's Phone" name="father_phone" type="tel" placeholder="+91" />
-                    <Field label="Father's Date of Birth" name="father_dob" type="date" />
-                  </div>
-                </div>
-
-                <div className="border-t border-gray-100 pt-6">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                    Mother's Details
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Mother's Name" name="mother_name" placeholder="Full name" />
-                    <Field label="Mother's Phone" name="mother_phone" type="tel" placeholder="+91" />
-                    <Field label="Mother's Date of Birth" name="mother_dob" type="date" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ── SECTION 3: Address ── */}
-            {activeSection === "address" && (
-              <div className="max-w-2xl">
-                <SectionTitle
-                  title="Address Details"
-                  subtitle="Permanent and temporary residential address"
-                />
-
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">
-                      Permanent Address
-                    </label>
-                    <textarea
-                      name="permanent_address"
-                      value={form.permanent_address ?? ""}
-                      onChange={handleChange}
-                      disabled={!isHR}
-                      rows={4}
-                      placeholder={isHR ? "House No., Street, City, State, PIN" : "—"}
-                      className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none transition resize-none
-                        ${!isHR ? "bg-gray-50 text-gray-500 cursor-default" : "bg-white focus:border-gray-400"}`}
+                    <Field
+                      label="Marital Status"
+                      name="marital_status"
+                      options={["Single", "Married", "Divorced", "Widowed"]}
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">
-                      Temporary / Current Address
-                    </label>
-                    <textarea
-                      name="temporary_address"
-                      value={form.temporary_address ?? ""}
-                      onChange={handleChange}
-                      disabled={!isHR}
-                      rows={4}
-                      placeholder={isHR ? "House No., Street, City, State, PIN" : "—"}
-                      className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none transition resize-none
-                        ${!isHR ? "bg-gray-50 text-gray-500 cursor-default" : "bg-white focus:border-gray-400"}`}
+                    <Field
+                      label="Blood Group"
+                      name="blood_group"
+                      options={["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"]}
                     />
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* ── SECTION 4: Banking & Government ── */}
-            {activeSection === "banking" && (
-              <div className="max-w-2xl">
-                <SectionTitle
-                  title="Banking & Government Details"
-                  subtitle="Financial and official identification information"
-                />
+                    <Field label="Nationality" name="nationality" placeholder="Indian" />
+                    <Field label="Department" name="department" placeholder="Engineering" />
 
-                <div className="mb-6">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                    Bank Details
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Bank Name" name="bank_name" placeholder="State Bank of India" />
-                    <Field label="IFSC Code" name="ifsc_code" placeholder="SBIN0001234" />
-                    <div className="col-span-2">
-                      <Field label="Account Number" name="account_number" placeholder="Account number" />
+                    <Field label="Designation" name="designation" placeholder="Software Engineer" />
+
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Role</label>
+                      <input
+                        value={form.role ?? ""}
+                        disabled
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-default outline-none capitalize"
+                      />
                     </div>
                   </div>
                 </div>
+              )}
 
-                <div className="border-t border-gray-100 pt-6">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                    Government ID Numbers
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Aadhaar Number" name="aadhar_number" placeholder="XXXX XXXX XXXX" />
-                    <Field label="PAN Number" name="pan_number" placeholder="ABCDE1234F" />
+              {/* ── SECTION 2: Emergency Contact ── */}
+              {activeSection === "emergency" && (
+                <div className="max-w-2xl w-full">
+                  <SectionTitle
+                    title="Emergency Contact"
+                    subtitle="Parent details for emergency situations"
+                  />
+
+                  <div className="mb-6">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                      Father's Details
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Father's Name" name="father_name" placeholder="Full name" />
+                      <Field label="Father's Phone" name="father_phone" type="tel" placeholder="+91" />
+                      <Field label="Father's Date of Birth" name="father_dob" type="date" />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-6">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                      Mother's Details
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Mother's Name" name="mother_name" placeholder="Full name" />
+                      <Field label="Mother's Phone" name="mother_phone" type="tel" placeholder="+91" />
+                      <Field label="Mother's Date of Birth" name="mother_dob" type="date" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
+              {/* ── SECTION 3: Address ── */}
+              {activeSection === "address" && (
+                <div className="max-w-2xl">
+                  <SectionTitle
+                    title="Address Details"
+                    subtitle="Permanent and temporary residential address"
+                  />
+
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">
+                        Permanent Address
+                      </label>
+                      <textarea
+                        name="permanent_address"
+                        value={form.permanent_address ?? ""}
+                        onChange={handleChange}
+                        disabled={!isHR}
+                        rows={4}
+                        placeholder={isHR ? "House No., Street, City, State, PIN" : "—"}
+                        className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none transition resize-none
+                          ${!isHR ? "bg-gray-50 text-gray-500 cursor-default" : "bg-white focus:border-gray-400"}`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">
+                        Temporary / Current Address
+                      </label>
+                      <textarea
+                        name="temporary_address"
+                        value={form.temporary_address ?? ""}
+                        onChange={handleChange}
+                        disabled={!isHR}
+                        rows={4}
+                        placeholder={isHR ? "House No., Street, City, State, PIN" : "—"}
+                        className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none transition resize-none
+                          ${!isHR ? "bg-gray-50 text-gray-500 cursor-default" : "bg-white focus:border-gray-400"}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── SECTION 4: Banking & Government ── */}
+              {activeSection === "banking" && (
+                <div className="max-w-2xl">
+                  <SectionTitle
+                    title="Banking & Government Details"
+                    subtitle="Financial and official identification information"
+                  />
+
+                  <div className="mb-6">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                      Bank Details
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Bank Name" name="bank_name" placeholder="State Bank of India" />
+                      <Field label="IFSC Code" name="ifsc_code" placeholder="SBIN0001234" />
+                      <div className="col-span-2">
+                        <Field label="Account Number" name="account_number" placeholder="Account number" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-6">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                      Government ID Numbers
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Aadhaar Number" name="aadhar_number" placeholder="XXXX XXXX XXXX" />
+                      <Field label="PAN Number" name="pan_number" placeholder="ABCDE1234F" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
