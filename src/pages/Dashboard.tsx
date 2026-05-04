@@ -41,7 +41,7 @@ return (
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
 
         {/* CALENDAR */}
-        <section className="xl:col-span-2 bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition">
+        <section className="xl:col-span-2 bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition h-full flex flex-col">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-sm sm:text-base text-[#0B3D2E] font-semibold">Calendar</h2>
             <div className="w-2 h-2 rounded-full bg-[#C6A15B]"></div>
@@ -55,17 +55,8 @@ return (
         </section>
 
         {/* TASKS */}
-        <section className="xl:col-span-1 bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-sm sm:text-base text-[#0B3D2E] font-semibold">Tasks</h2>
-            <div className="w-2 h-2 rounded-full bg-[#C6A15B]"></div>
-          </div>
-          <div className="h-[1px] bg-gradient-to-r from-[#C6A15B]/30 to-transparent mb-4"></div>
-
-          {/* scroll fix */}
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            <Tasks />
-          </div>
+        <section className="xl:col-span-1 bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition flex flex-col h-[700px]">
+          <Tasks />
         </section>
       </div>
 

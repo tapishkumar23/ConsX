@@ -265,7 +265,7 @@ const handleSubmit = async () => {
   return (
     <>
       {/* TASK PANEL */}
-      <div className="bg-white p-5 rounded-2xl shadow-sm mt-6 border border-gray-200 transition hover:shadow-lg max-h-[500px] overflow-y-auto">
+      <div className="flex flex-col h-full min-h-0 overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold text-[#0B3D2E] tracking-wide">
             Tasks
@@ -281,7 +281,7 @@ const handleSubmit = async () => {
           )}
         </div>
 
-        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scroll-smooth">
+        <div className="space-y-4 flex-1 overflow-y-auto pr-2 scroll-smooth min-h-0">
           {tasks.length === 0 && (
             <p className="text-sm text-gray-400">No tasks yet</p>
           )}
