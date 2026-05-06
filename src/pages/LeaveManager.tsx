@@ -94,8 +94,75 @@ const LeaveManager = () => {
         return;
       }
 
+const { data: currentUser } = await supabase
+  .from("users")
+  .select("name, role")
+  .eq("id", user.id)
+  .single();
+
+if (!currentUser) return;
+
+let adminsQuery = supabase
+  .from("users")
+  .select("id, role");
+
+
+// ✅ If HR applies leave → only CEO gets notification
+if (currentUser.role?.toLowerCase() === "hr") {
+  adminsQuery = adminsQuery.eq("role", "ceo");
+} else {
+  // ✅ Employees → HR + CEO
+  adminsQuery = adminsQuery.in("role", ["hr", "ceo"]);
+}
+
+const { data: admins } = await adminsQuery;
+
+if (admins && admins.length > 0) {
+  const notifications = admins.map((admin) => ({
+    user_id: admin.id,
+    message: `New leave request submitted from ${currentUser.name}`,
+    is_read: false,
+  }));
+
+  await supabase.from("notifications").insert(notifications);
+}
+
       alert("Leave applied!");
-      window.location.reload();
+      setFromDate("");
+setToDate("");
+setReason("");
+setHalfDay(false);
+
+// refresh approved leaves count
+const { data: refreshedLeaves } = await supabase
+  .from("leaves")
+  .select("from_date, to_date, reason, status")
+  .eq("user_id", user.id)
+  .eq("status", "approved");
+
+let total = 0;
+
+(refreshedLeaves || []).forEach((l) => {
+  const isHalfDay =
+    l.reason?.toLowerCase().includes("half day") ||
+    l.reason?.toLowerCase().includes("(half day)");
+
+  if (isHalfDay) {
+    total += 0.5;
+  } else {
+    const from = new Date(l.from_date);
+    const to = new Date(l.to_date);
+
+    const diff =
+      (to.getTime() - from.getTime()) /
+        (1000 * 60 * 60 * 24) +
+      1;
+
+    total += diff;
+  }
+});
+
+setTakenLeaves(total);
     } catch (err) {
       console.error(err);
     } finally {

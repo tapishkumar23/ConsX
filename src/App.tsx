@@ -34,7 +34,7 @@ function App() {
             }
           />
 
-          {/* Leave Manager (NEW PAGE) */}
+          {/* Leave Manager */}
           <Route
             path="/leave-manager"
             element={
@@ -56,7 +56,10 @@ function App() {
           />
 
           {/* Policies */}
-          <Route path="/policies" element={<CompanyPolicies />} />
+          <Route
+            path="/policies"
+            element={<CompanyPolicies />}
+          />
 
         </Routes>
       </BrowserRouter>

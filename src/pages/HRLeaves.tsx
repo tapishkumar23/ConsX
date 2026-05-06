@@ -6,12 +6,47 @@ const HRLeaves = () => {
   const [leaves, setLeaves] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("pending");
 
-  const fetchLeaves = async () => {
-  const { data: leavesData } = await supabase
+
+const fetchLeaves = async () => {
+  const { data: currentUserData } = await supabase.auth.getUser();
+  const currentUser = currentUserData?.user;
+
+  if (!currentUser) return;
+
+  // ✅ Get current role
+  const { data: currentUserRole } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", currentUser.id)
+    .single();
+
+  const role = currentUserRole?.role?.toLowerCase();
+
+  let query = supabase
     .from("leaves")
     .select("*")
     .eq("status", activeTab)
     .order("created_at", { ascending: false });
+
+  // ✅ HR should NOT see HR leave requests
+  if (role === "hr") {
+    const { data: hrUsers } = await supabase
+      .from("users")
+      .select("id")
+      .eq("role", "hr");
+
+    const hrIds = hrUsers?.map((u) => u.id) || [];
+
+    if (hrIds.length > 0) {
+      query = query.not(
+  "user_id",
+  "in",
+  `(${hrIds.map((id) => `"${id}"`).join(",")})`
+);
+    }
+  }
+
+  const { data: leavesData } = await query;
 
   if (!leavesData) return;
 
@@ -26,6 +61,7 @@ const HRLeaves = () => {
 
   // 🔥 Map userId → name
   const userMap: any = {};
+
   usersData?.forEach((u) => {
     userMap[u.id] = u.name;
   });
@@ -205,6 +241,7 @@ const HRLeaves = () => {
     return "bg-red-100 text-red-700";
   return "bg-yellow-100 text-yellow-700";
 };
+
 
   return (
     <Layout>
