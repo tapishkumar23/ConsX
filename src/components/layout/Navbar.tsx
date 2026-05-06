@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 const PAGE_TITLES: Record<string, string> = {
   "/": "Office",
   "/policies": "Company Policies",
-  "/apply-leave": "Leave Manager",
+  "/leave-manager": "Leave Manager",
   "/hr-leaves": "HR Panel",
   "/user-details": "Employee Profiles",
 };

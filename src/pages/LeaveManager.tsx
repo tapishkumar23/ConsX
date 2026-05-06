@@ -96,6 +96,39 @@ const LeaveManager = () => {
         return;
       }
 
+const { data: currentUser } = await supabase
+  .from("users")
+  .select("name, role")
+  .eq("id", user.id)
+  .single();
+
+if (!currentUser) return;
+
+let adminsQuery = supabase
+  .from("users")
+  .select("id, role");
+
+
+// ✅ If HR applies leave → only CEO gets notification
+if (currentUser.role?.toLowerCase() === "hr") {
+  adminsQuery = adminsQuery.eq("role", "ceo");
+} else {
+  // ✅ Employees → HR + CEO
+  adminsQuery = adminsQuery.in("role", ["hr", "ceo"]);
+}
+
+const { data: admins } = await adminsQuery;
+
+if (admins && admins.length > 0) {
+  const notifications = admins.map((admin) => ({
+    user_id: admin.id,
+    message: `New leave request submitted from ${currentUser.name}`,
+    is_read: false,
+  }));
+
+  await supabase.from("notifications").insert(notifications);
+}
+
       alert("Leave applied!");
       window.location.reload();
     } catch (err) {
