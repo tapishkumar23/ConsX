@@ -128,6 +128,41 @@ if (admins && admins.length > 0) {
 }
 
       alert("Leave applied!");
+      setFromDate("");
+setToDate("");
+setReason("");
+setHalfDay(false);
+
+// refresh approved leaves count
+const { data: refreshedLeaves } = await supabase
+  .from("leaves")
+  .select("from_date, to_date, reason, status")
+  .eq("user_id", user.id)
+  .eq("status", "approved");
+
+let total = 0;
+
+(refreshedLeaves || []).forEach((l) => {
+  const isHalfDay =
+    l.reason?.toLowerCase().includes("half day") ||
+    l.reason?.toLowerCase().includes("(half day)");
+
+  if (isHalfDay) {
+    total += 0.5;
+  } else {
+    const from = new Date(l.from_date);
+    const to = new Date(l.to_date);
+
+    const diff =
+      (to.getTime() - from.getTime()) /
+        (1000 * 60 * 60 * 24) +
+      1;
+
+    total += diff;
+  }
+});
+
+setTakenLeaves(total);
     } catch (err) {
       console.error(err);
     } finally {
