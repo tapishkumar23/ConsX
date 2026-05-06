@@ -5,9 +5,10 @@ import Navbar from "./Navbar";
 
 interface LayoutProps {
   children: ReactNode;
+  fullBleed?: boolean; // skips the max-w + padding wrapper
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, fullBleed = false }: LayoutProps) => {
   const [collapsed, setCollapsed] = useState(true);
 
   return (
@@ -34,9 +35,15 @@ const Layout = ({ children }: LayoutProps) => {
 
         {/* MAIN CONTENT */}
         <main className="flex-1 overflow-y-auto">
-          <div className="w-full p-6 space-y-6">
-            {children}
-          </div>
+          {fullBleed ? (
+            // Full width, no padding — for pages like Policies, UserDetails
+            children
+          ) : (
+            // Normal padded layout — for Dashboard and other pages
+            <div className="max-w-7xl mx-auto p-6 space-y-6">
+              {children}
+            </div>
+          )}
         </main>
 
       </div>
