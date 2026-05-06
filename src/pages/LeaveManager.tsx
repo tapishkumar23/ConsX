@@ -128,7 +128,6 @@ if (admins && admins.length > 0) {
 }
 
       alert("Leave applied!");
-      window.location.reload();
     } catch (err) {
       console.error(err);
     } finally {
