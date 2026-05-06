@@ -38,7 +38,11 @@ const fetchLeaves = async () => {
     const hrIds = hrUsers?.map((u) => u.id) || [];
 
     if (hrIds.length > 0) {
-      query = query.not("user_id", "in", `(${hrIds.join(",")})`);
+      query = query.not(
+  "user_id",
+  "in",
+  `(${hrIds.map((id) => `"${id}"`).join(",")})`
+);
     }
   }
 
