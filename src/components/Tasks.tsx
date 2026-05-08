@@ -62,7 +62,7 @@ const Tasks = () => {
 else if (role === "manager") {
   // Manager → employees + self
   filteredUsers = data.filter(
-    (u) => u.role === "employee" || u.id === user.id
+    (u) => u.role === "employee" || u.role === "backend_employee" || u.id === user.id
   );
 } 
 else if (role === "hr") {
