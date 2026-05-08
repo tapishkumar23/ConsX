@@ -73,7 +73,7 @@ const AssignProject = ({ role, user }: any) => {
   // 🔥 Fetch projects
   useEffect(() => {
     const fetchProjects = async () => {
-      if (!user) return;
+      if (!user?.id || !role) return;
 
       let query = supabase
         .from("project_assignments")
@@ -102,7 +102,7 @@ const AssignProject = ({ role, user }: any) => {
     };
 
     fetchProjects();
-  }, [user, role]);
+  }, [user?.id, role]);
 
   // 🔥 Submit handler
   const handleSubmit = async () => {
@@ -187,17 +187,16 @@ const AssignProject = ({ role, user }: any) => {
         <h2 className="text-lg font-semibold text-gray-800 mb-5">Projects</h2>
 
         {projects.length === 0 && (
-          <p className="text-gray-500 text-sm">
-            No projects found
-          </p>
-        )}
+      <p className="text-gray-500 text-sm">
+        No projects found
+      </p>
+    )}
 
         {projects.map((p) => (
           <div key={p.id} className="group p-5 mb-4 rounded-2xl border border-gray-200 bg-white hover:shadow-lg transition-all duration-200">
             <h3 className="font-semibold text-lg text-gray-900 group-hover:text-[#0B3D2E] transition">
               {p.title}
             </h3>
-
             <p className="text-sm text-gray-500 mt-2 leading-relaxed">{p.description}</p>
 
             <p className={`text-sm font-semibold mt-1 ${
