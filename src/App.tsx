@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import UserDetails from "./pages/UserDetails";
-import LeaveManager from "./pages/LeaveManager"; // ✅ NEW
+import LeaveManager from "./pages/LeaveManager";
 import HRLeaves from "./pages/HRLeaves";
 import CompanyPolicies from "./components/Policies";
+import ResetPassword from "./pages/ResetPassword";
 
 import { AuthProvider } from "./pages/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -13,6 +14,12 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+
+          {/* Reset Password */}
+          <Route
+            path="/reset-password"
+            element={<ResetPassword />}
+          />
 
           {/* Dashboard */}
           <Route
@@ -43,7 +50,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
 
           {/* HR Leave Approval */}
           <Route
