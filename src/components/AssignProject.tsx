@@ -194,7 +194,9 @@ const AssignProject = ({ role, user }: any) => {
 
         {projects.map((p) => (
           <div key={p.id} className="group p-5 mb-4 rounded-2xl border border-gray-200 bg-white hover:shadow-lg transition-all duration-200">
-            <h3 className="font-semibold text-lg text-gray-900 group-hover:text-[#0B3D2E] transition"> </h3>
+            <h3 className="font-semibold text-lg text-gray-900 group-hover:text-[#0B3D2E] transition">
+              {p.title}
+            </h3>
 
             <p className="text-sm text-gray-500 mt-2 leading-relaxed">{p.description}</p>
 
