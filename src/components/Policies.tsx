@@ -111,7 +111,7 @@ const CompanyPolicies = () => {
       <div className="flex h-[calc(100vh-64px)] font-sans">
 
         {/* LEFT: Policy list */}
-        <div className="w-72 border-r bg-white flex flex-col flex-shrink-0">
+        <div className="w-40 md:w-72 border-r bg-white flex flex-col flex-shrink-0">
           <div className="px-4 py-3 border-b flex items-center justify-between">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
               All Policies
@@ -181,7 +181,7 @@ const CompanyPolicies = () => {
         </div>
 
         {/* RIGHT: PDF viewer */}
-        <div className="flex-1 flex flex-col bg-gray-100">
+        <div className="flex-1 min-w-0 flex flex-col bg-gray-100">
           {!selectedPolicy ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-8">
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm">
@@ -196,7 +196,7 @@ const CompanyPolicies = () => {
             </div>
           ) : (
             <>
-              <div className="bg-white border-b px-6 py-3 flex items-center justify-between flex-shrink-0">
+              <div className="bg-white border-b px-3 md:px-6 py-3 flex items-center justify-between flex-shrink-0">
                 <div>
                   <h2 className="text-sm font-semibold text-gray-900">{selectedPolicy.title}</h2>
                   {selectedPolicy.description && (

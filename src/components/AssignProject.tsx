@@ -98,7 +98,7 @@ const AssignProject = ({ role, user }: any) => {
         console.error("Error fetching projects:", error);
       } else {
         setProjects(data || []);
-      }
+      } 
     };
 
     fetchProjects();

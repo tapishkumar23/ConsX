@@ -185,10 +185,10 @@ setTakenLeaves(total);
         
 
         <div className="p-6">
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="max-w-2xl mx-auto space-y-6 min-w-0">
 
             {/* ✅ SUMMARY */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border">
+            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border min-w-0 overflow-hidden">
               <h2 className="text-lg font-semibold mb-4">Leave Summary</h2>
 
               <div className="grid grid-cols-3 gap-4 text-center">
@@ -218,7 +218,7 @@ setTakenLeaves(total);
               <label className="text-sm text-gray-600">From Date</label>
               <input
                 type="date"
-                className="w-full mb-4 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400"
+                className="block w-full min-w-0 mb-4 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
               />
@@ -228,7 +228,7 @@ setTakenLeaves(total);
                   <label className="text-sm text-gray-600">To Date</label>
                   <input
                     type="date"
-                    className="w-full mb-4 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400"
+                    className="block w-full min-w-0 mb-4 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
                   />
@@ -247,7 +247,7 @@ setTakenLeaves(total);
 
               <label className="text-sm text-gray-600">Reason</label>
               <textarea
-                className="w-full mb-5 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400 resize-none"
+                className="block w-full min-w-0 mb-5 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400 resize-none"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
@@ -255,7 +255,7 @@ setTakenLeaves(total);
 
               <button
                 onClick={handleSubmit}
-                className="w-full bg-black text-white py-2.5 rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
+                className="block w-full min-w-0 bg-black text-white py-2.5 rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
                 disabled={loading}
               >
                 {loading ? "Submitting..." : "Apply Leave"}
