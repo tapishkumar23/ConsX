@@ -212,13 +212,14 @@ setTakenLeaves(total);
             </div>
 
             {/* ✅ FORM */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border">
+            <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border min-w-0 overflow-hidden">
               <h2 className="text-lg font-semibold mb-5">Apply Leave</h2>
 
               <label className="text-sm text-gray-600">From Date</label>
               <input
                 type="date"
-                className="block w-full min-w-0 mb-4 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400"
+                style={{ WebkitAppearance: "none" }}
+                className="block w-full min-w-0 max-w-full appearance-none mb-4 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400 bg-white overflow-hidden"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
               />
@@ -228,7 +229,7 @@ setTakenLeaves(total);
                   <label className="text-sm text-gray-600">To Date</label>
                   <input
                     type="date"
-                    className="block w-full min-w-0 mb-4 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400"
+                    className="block w-full min-w-0 max-w-full appearance-none mb-4 px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400 bg-white overflow-hidden"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
                   />

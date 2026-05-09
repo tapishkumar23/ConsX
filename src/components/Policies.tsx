@@ -56,7 +56,10 @@ const CompanyPolicies = () => {
       .createSignedUrl(policy.file_path, 60 * 60);
 
     if (error) { console.error(error.message); setLoadingPdf(false); return; }
-    setPdfUrl((data?.signedUrl ?? "") + "#toolbar=0&navpanes=0&scrollbar=1");
+    setPdfUrl(
+        (data?.signedUrl ?? "") +
+          "#toolbar=0&navpanes=0&scrollbar=1&view=FitH"
+      );
     setLoadingPdf(false);
   };
 
@@ -108,7 +111,7 @@ const CompanyPolicies = () => {
   return (
     // fullBleed skips the max-w-7xl padding wrapper in Layout
     <Layout fullBleed>
-      <div className="flex h-[calc(100vh-64px)] font-sans">
+      <div className="flex h-[calc(100vh-64px)] font-sans overflow-hidden">
 
         {/* LEFT: Policy list */}
         <div className="w-40 md:w-72 border-r bg-white flex flex-col flex-shrink-0">
@@ -153,14 +156,16 @@ const CompanyPolicies = () => {
                       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8.5 17.5h-1v-5h1.8c1.1 0 1.7.6 1.7 1.5 0 1-.7 1.6-1.8 1.6H8.5v1.9zm0-2.7h.7c.5 0 .8-.3.8-.7s-.3-.7-.8-.7H8.5v1.4zm4.3 2.7h-1v-5h1.1c1.5 0 2.4.9 2.4 2.5s-.9 2.5-2.5 2.5zm0-4.1v3.2c.9 0 1.4-.6 1.4-1.6s-.5-1.6-1.4-1.6zm4.2 4.1v-5h3v.9h-2v1.1h1.8v.9H18v2.1h-1z"/>
                     </svg>
                   </div>
-                  <div className="flex-1 min-w-0 pr-5">
-                    <p className={`text-sm font-medium truncate ${
+                  <div className="flex-1 min-w-0 pr-1">
+                    <p className={`text-[11px] sm:text-sm font-medium leading-tight break-words ${
                       selectedPolicy?.id === policy.id ? "text-gray-900" : "text-gray-700"
                     }`}>
                       {policy.title}
                     </p>
                     {policy.description && (
-                      <p className="text-xs text-gray-400 truncate mt-0.5">{policy.description}</p>
+                      <p className="hidden sm:block text-xs text-gray-400 truncate mt-0.5">
+                        {policy.description}
+                        </p>
                     )}
                     <p className="text-xs text-gray-400 mt-1">{formatDate(policy.created_at)}</p>
                   </div>
@@ -181,7 +186,7 @@ const CompanyPolicies = () => {
         </div>
 
         {/* RIGHT: PDF viewer */}
-        <div className="flex-1 min-w-0 flex flex-col bg-gray-100">
+        <div className="flex-1 min-w-0 flex flex-col bg-gray-100 overflow-hidden">
           {!selectedPolicy ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-8">
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm">
@@ -230,7 +235,7 @@ const CompanyPolicies = () => {
                     <iframe
                       ref={iframeRef}
                       src={pdfUrl}
-                      className="w-full h-full border-0"
+                      className="w-full h-full border-0 bg-white"
                       title={selectedPolicy.title}
                     />
                     <div
