@@ -95,7 +95,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#F5F7F6]">
+    <div className="min-h-screen flex flex-col items-center justify-start pt-2048 bg-[#F5F7F6]">
 
       {/* ✅ Logo OUTSIDE the card */}
       <img
