@@ -95,16 +95,17 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start pt-2048 bg-[#F5F7F6]">
+    <div className="relative min-h-screen overflow-hidden flex flex-col items-center px-4 pt-10 sm:pt-12 bg-[linear-gradient(115deg,#F4E2B8_0%,#EFD39A_35%,#E8EEE9_58%,#DDE9E4_78%,#D1E2DA_100%)]">
+  
 
       {/* ✅ Logo OUTSIDE the card */}
       <img
-        src="/altruity_marketing_icon.png"
+        src="\altruity_marketing_group_wordmark_print.png"
         alt="Altruity Marketing Group"
         className="h-96 w-auto object-contain mb-6"
       />
 
-      <div className="bg-white border border-gray-200 rounded-2xl p-8 w-[380px] shadow-sm">
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/40 bg-white/85 backdrop-blur-xl shadow-[0_10px_40px_rgba(11,61,46,0.10)] p-6 sm:p-8">
 
         <h2 className="text-xl font-semibold text-[#0B3D2E] mb-6">
           {isSignup ? "Create Account" : "Sign In"}
@@ -120,7 +121,7 @@ const Auth = () => {
 
         {isSignup && (
           <input
-            className="border p-2 w-full mb-3 rounded"
+            className="w-full mb-3 rounded-xl border border-gray-200 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/10"
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -128,7 +129,7 @@ const Auth = () => {
         )}
 
         <input
-          className="border p-2 w-full mb-3 rounded"
+          className="w-full mb-3 rounded-xl border border-gray-200 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/10"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -137,7 +138,7 @@ const Auth = () => {
         {!forgotMode && (
           <input
             type="password"
-            className="border p-2 w-full mb-4 rounded"
+            className="w-full mb-4 rounded-xl border border-gray-200 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-[#0B3D2E] focus:ring-2 focus:ring-[#0B3D2E]/10"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -160,7 +161,7 @@ const Auth = () => {
         <button
           onClick={forgotMode ? handleForgotPassword : handleAuth}
           disabled={loading}
-          className="w-full bg-[#0B3D2E] text-white py-2 rounded hover:opacity-90 transition disabled:opacity-50"
+          className="w-full rounded-xl bg-gradient-to-r from-[#0B3D2E] to-[#145443] py-3 text-white font-medium shadow-lg shadow-[#0B3D2E]/20 transition hover:scale-[1.01] hover:shadow-xl disabled:opacity-50"
         >
           {loading
             ? "Please wait..."
