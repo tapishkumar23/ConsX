@@ -95,7 +95,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden flex flex-col items-center px-4 pt-4 sm:pt-12 bg-[linear-gradient(115deg,#F4E2B8_0%,#EFD39A_35%,#E8EEE9_58%,#DDE9E4_78%,#D1E2DA_100%)]">
+    <div className="relative min-h-screen overflow-hidden flex flex-col items-center px-4 pt-4 sm:pt-16 bg-[linear-gradient(115deg,#F4E2B8_0%,#EFD39A_35%,#E8EEE9_58%,#DDE9E4_78%,#D1E2DA_100%)]">
   
 
       {/* ✅ Logo OUTSIDE the card */}
