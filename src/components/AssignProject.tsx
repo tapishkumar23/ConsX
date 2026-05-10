@@ -19,6 +19,7 @@ type ProjectType = {
   assigned_by: string;
   created_at: string;
   deadline?: string;
+  is_completed?: boolean;
   assigned_to_user?: {
     name: string;
   };
@@ -138,6 +139,7 @@ const AssignProject = ({ role, user }: any) => {
           assigned_by: user.id,
           attachment_url: fileUrl,
           deadline: form.deadline,
+          is_completed: false,
         },
       ]);
 
@@ -177,6 +179,68 @@ const AssignProject = ({ role, user }: any) => {
       alert("❌ Error assigning project");
     }
   };
+
+  const handleComplete = async (projectId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("project_assignments")
+      .update({ is_completed: true })
+      .eq("id", projectId)
+      .select();
+
+    console.log("UPDATE RESPONSE:", data);
+
+    if (error) {
+      console.error(error);
+      alert(error.message);
+      return;
+    }
+
+    setProjects((prev) =>
+      prev.map((project) =>
+        project.id === projectId
+          ? { ...project, is_completed: true }
+          : project
+      )
+    );
+
+    alert("Project marked completed");
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const handleDelete = async (projectId: string) => {
+  try {
+    const confirmed = window.confirm(
+      "Delete this project?"
+    );
+
+    if (!confirmed) return;
+
+    const { data, error } = await supabase
+      .from("project_assignments")
+      .delete()
+      .eq("id", projectId)
+      .select();
+
+    console.log("DELETE RESPONSE:", data);
+
+    if (error) {
+      console.error("DELETE ERROR:", error);
+      alert(error.message);
+      return;
+    }
+
+    setProjects((prev) =>
+      prev.filter((p) => p.id !== projectId)
+    );
+
+    alert("Project deleted successfully");
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   // 🔥 FINAL UI
   return (
@@ -225,6 +289,43 @@ const AssignProject = ({ role, user }: any) => {
                 ⬇ Download Attachment
               </a>
             )}
+            <div className="flex flex-wrap gap-2 mt-4">
+
+  {/* EMPLOYEE COMPLETE BUTTON */}
+  {isEmployee &&
+    p.assigned_to === user.id &&
+    !p.is_completed && (
+      <button
+        onClick={() => handleComplete(p.id)}
+        className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700 transition"
+      >
+        Mark Completed
+      </button>
+    )}
+
+  {/* CEO / MANAGER VIEW STATUS */}
+  {!isEmployee && (
+    <span
+      className={`px-3 py-2 rounded-lg text-sm font-medium ${
+        p.is_completed
+          ? "bg-green-100 text-green-700"
+          : "bg-yellow-100 text-yellow-700"
+      }`}
+    >
+      {p.is_completed ? "Completed" : "Pending"}
+    </span>
+  )}
+
+  {/* CEO / MANAGER DELETE BUTTON */}
+  {!isEmployee && (
+    <button
+      onClick={() => handleDelete(p.id)}
+      className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-700 transition"
+    >
+      Delete Project
+    </button>
+  )}
+</div>
           </div>
         ))}
       </div>

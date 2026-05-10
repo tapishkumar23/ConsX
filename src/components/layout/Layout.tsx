@@ -12,7 +12,7 @@ const Layout = ({ children, fullBleed = false }: LayoutProps) => {
   const [collapsed, setCollapsed] = useState(true);
 
   return (
-    <div className="flex h-screen bg-[linear-gradient(115deg,#F4E2B8_0%,#EFD39A_35%,#E8EEE9_58%,#DDE9E4_78%,#D1E2DA_100%)]">
+    <div className="flex min-h-dvh overflow-x-hidden bg-[linear-gradient(115deg,#F4E2B8_0%,#EFD39A_35%,#E8EEE9_58%,#DDE9E4_78%,#D1E2DA_100%)]">
 
       {/* SIDEBAR */}
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
@@ -34,13 +34,13 @@ const Layout = ({ children, fullBleed = false }: LayoutProps) => {
         </div>
 
         {/* MAIN CONTENT */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 min-w-0 overflow-y-auto">
           {fullBleed ? (
             // Full width, no padding — for pages like Policies, UserDetails
             children
           ) : (
             // Normal padded layout — for Dashboard and other pages
-            <div className="max-w-7xl mx-auto p-6 space-y-6">
+            <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6 min-w-0">
               {children}
             </div>
           )}
