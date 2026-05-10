@@ -180,7 +180,7 @@ setTakenLeaves(total);
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100">
+      <div className="min-h-screen">
         
         
 

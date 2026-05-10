@@ -95,14 +95,14 @@ const Auth = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden flex flex-col items-center px-4 pt-10 sm:pt-12 bg-[linear-gradient(115deg,#F4E2B8_0%,#EFD39A_35%,#E8EEE9_58%,#DDE9E4_78%,#D1E2DA_100%)]">
+    <div className="relative min-h-screen overflow-hidden flex flex-col items-center px-4 pt-4 sm:pt-12 bg-[linear-gradient(115deg,#F4E2B8_0%,#EFD39A_35%,#E8EEE9_58%,#DDE9E4_78%,#D1E2DA_100%)]">
   
 
       {/* ✅ Logo OUTSIDE the card */}
       <img
         src="\altruity_marketing_group_wordmark_print.png"
         alt="Altruity Marketing Group"
-        className="h-96 w-auto object-contain mb-6"
+        className="h-28 sm:h-24 md:h-28 w-auto object-contain mb-3 sm:mb-8 relative z-10"
       />
 
       <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/40 bg-white/85 backdrop-blur-xl shadow-[0_10px_40px_rgba(11,61,46,0.10)] p-6 sm:p-8">

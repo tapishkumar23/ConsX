@@ -12,7 +12,7 @@ const Layout = ({ children, fullBleed = false }: LayoutProps) => {
   const [collapsed, setCollapsed] = useState(true);
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-[linear-gradient(115deg,#F4E2B8_0%,#EFD39A_35%,#E8EEE9_58%,#DDE9E4_78%,#D1E2DA_100%)]">
 
       {/* SIDEBAR */}
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />

@@ -35,7 +35,7 @@ const Dashboard = () => {
 
 return (
   <Layout>
-    <div className="p-4 sm:p-6 min-h-screen space-y-6 sm:space-y-8 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-200">
+    <div className="p-4 sm:p-6 min-h-screen space-y-6 sm:space-y-8">
 
       {/* TOP GRID */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
