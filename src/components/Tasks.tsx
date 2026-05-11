@@ -184,7 +184,26 @@ const handleSubmit = async () => {
       console.error("UPDATE ERROR:", error.message);
       return;
     }
-  } else {
+  } 
+  
+const assignedUserId = assignedTo ? assignedTo : user.id;
+
+if (assignedUserId && assignedUserId !== user.id) {
+  const { data: currentUser } = await supabase
+    .from("users")
+    .select("name")
+    .eq("id", user.id)
+    .single();
+
+  await supabase.from("notifications").insert([
+    {
+      user_id: assignedUserId,
+      message: `${currentUser?.name || "Manager"} updated task "${title}"`,
+    },
+  ]);
+}
+
+  else {
     const { error } = await supabase.from("tasks").insert([
       {
         title,
@@ -217,6 +236,65 @@ const handleSubmit = async () => {
   await fetchTasks();
   resetForm();
   setFile(null);
+};
+
+const handleTaskComplete = async (task: Task) => {
+  try {
+    const { error } = await supabase
+      .from("tasks")
+      .update({
+        status: "done",
+      })
+      .eq("id", task.id);
+
+    if (error) {
+      console.error(error);
+      alert("Failed to complete task");
+      return;
+    }
+
+    const { data: currentUser } = await supabase
+      .from("users")
+      .select("name")
+      .eq("id", user?.id)
+      .single();
+
+    // 🔔 Notify manager/CEO
+    const { data: admins } = await supabase
+      .from("users")
+      .select("id, role")
+      .in("role", ["manager", "ceo"]);
+
+    if (admins && admins.length > 0) {
+      const notifications = admins.map((admin) => ({
+        user_id: admin.id,
+        message: `${currentUser?.name || "Employee"} completed task "${task.title}"`,
+      }));
+
+      await supabase
+        .from("notifications")
+        .insert(notifications);
+    }
+
+    // update UI instantly
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === task.id
+          ? { ...t, status: "done" }
+          : t
+      )
+    );
+
+    setSelectedTask((prev) =>
+      prev
+        ? { ...prev, status: "done" }
+        : null
+    );
+
+    alert("Task completed");
+  } catch (err) {
+    console.error(err);
+  }
 };
 
   const deleteTask = async (id: number) => {
@@ -519,7 +597,15 @@ const handleSubmit = async () => {
             >
               Close
             </button>
-
+            {task.assigned_to === user?.id &&
+              task.status !== "done" && (
+                <button
+                  onClick={() => handleTaskComplete(task)}
+                  className="text-green-600 text-sm hover:underline"
+                >
+                  Complete
+                </button>
+            )}
             {(role === "ceo" || task.user_id === user?.id) && (
               <div className="flex gap-3">
                 <button
