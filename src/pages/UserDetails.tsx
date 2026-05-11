@@ -323,7 +323,6 @@ const UserDetails = () => {
                       : "border-l-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"
                   }`}
                 >
-                  <span className="text-base">{s.icon}</span>
                   <span className="leading-tight">{s.label}</span>
                 </button>
               ))}
