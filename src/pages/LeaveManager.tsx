@@ -11,7 +11,7 @@ const LeaveManager = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const [totalLeaves, setTotalLeaves] = useState(0);
+  const [earnedLeaves, setEarnedLeaves] = useState(0);
   const [takenLeaves, setTakenLeaves] = useState(0);
 
   // ✅ Fetch user + leave stats
@@ -24,11 +24,23 @@ const LeaveManager = () => {
       // total leaves
       const { data: userData } = await supabase
         .from("users")
-        .select("leave_balance")
+        .select("joining_date")
         .eq("id", user.id)
         .single();
+        const joiningDate = userData?.joining_date;
 
-      setTotalLeaves(userData?.leave_balance || 0);
+          if (joiningDate) {
+            const join = new Date(joiningDate);
+            const today = new Date();
+
+            const monthsWorked =
+              (today.getFullYear() - join.getFullYear()) * 12 +
+              (today.getMonth() - join.getMonth()) + 1;
+
+            const earned = monthsWorked * 1.5;
+
+            setEarnedLeaves(Number(earned.toFixed(1)));
+          }
 
       // taken leaves
       const { data: leaves } = await supabase
@@ -170,7 +182,7 @@ setTakenLeaves(total);
     }
   };
 
-  const remaining = totalLeaves - takenLeaves;
+  const remaining = earnedLeaves - takenLeaves;
 
   const getLeaveColor = () => {
     if (remaining <= 5) return "text-red-500";
@@ -179,38 +191,60 @@ setTakenLeaves(total);
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen">
-        
-        
+<Layout>
+  <div className="min-h-screen">
 
-        <div className="p-6">
-          <div className="max-w-2xl mx-auto space-y-6 min-w-0">
+    <div className="p-6">
+      <div className="max-w-2xl mx-auto space-y-6 min-w-0">
 
-            {/* ✅ SUMMARY */}
-            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border min-w-0 overflow-hidden">
-              <h2 className="text-lg font-semibold mb-4">Leave Summary</h2>
+        {/* ✅ SUMMARY */}
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border min-w-0 overflow-hidden">
+          <h2 className="text-lg font-semibold mb-4">
+            Leave Summary
+          </h2>
 
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <p className="text-xs text-gray-400">Total</p>
-                  <p className="text-lg font-semibold">{totalLeaves}</p>
-                </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
 
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <p className="text-xs text-gray-400">Taken</p>
-                  <p className="text-lg font-semibold">{takenLeaves}</p>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <p className="text-xs text-gray-400">Remaining</p>
-                  <p className={`text-lg font-semibold ${getLeaveColor()}`}>
-                    {remaining}
-                  </p>
-                </div>
-              </div>
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <p className="text-xs text-gray-400">
+                Monthly Accrual
+              </p>
+              <p className="text-lg font-semibold">
+                1.5
+              </p>
             </div>
 
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <p className="text-xs text-gray-400">
+                Earned
+              </p>
+              <p className="text-lg font-semibold">
+                {earnedLeaves}
+              </p>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <p className="text-xs text-gray-400">
+                Taken
+              </p>
+              <p className="text-lg font-semibold">
+                {takenLeaves}
+              </p>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <p className="text-xs text-gray-400">
+                Remaining
+              </p>
+              <p
+                className={`text-lg font-semibold ${getLeaveColor()}`}
+              >
+                {remaining}
+              </p>
+            </div>
+
+          </div>
+        </div>
             {/* ✅ FORM */}
             <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border min-w-0 overflow-hidden">
               <h2 className="text-lg font-semibold mb-5">Apply Leave</h2>
