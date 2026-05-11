@@ -31,6 +31,7 @@ const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [completionComment, setCompletionComment] = useState("");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -251,18 +252,15 @@ const handleSubmit = async () => {
 
 const handleTaskComplete = async (task: Task) => {
   try {
-    const comment = window.prompt(
-      "COMMENT",
-      ""
-    );
-
-    if (comment === null) return;
-
+        if (!completionComment.trim()) {
+  alert("Please enter a completion comment");
+  return;
+}
     const { error } = await supabase
       .from("tasks")
       .update({
         status: "done",
-        completion_comment: comment,
+        completion_comment: completionComment,
       })
       .eq("id", task.id);
 
@@ -295,7 +293,7 @@ const handleTaskComplete = async (task: Task) => {
           ? {
               ...t,
               status: "done",
-              completion_comment: comment,
+              completion_comment: completionComment,
             }
           : t
       )
@@ -306,13 +304,13 @@ const handleTaskComplete = async (task: Task) => {
         ? {
             ...prev,
             status: "done",
-            completion_comment: comment,
+            completion_comment: completionComment,
           }
         : null
     );
 
     await fetchTasks();
-
+    setCompletionComment("");
     alert("Task completed");
   } catch (err) {
     console.error(err);
@@ -629,6 +627,25 @@ const handleTaskComplete = async (task: Task) => {
             </div>
           )}
 
+
+          {task.assigned_to === user?.id &&
+              task.status !== "done" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Completion Comment
+                  </label>
+
+                  <textarea
+                    value={completionComment}
+                    onChange={(e) =>
+                      setCompletionComment(e.target.value)
+                    }
+                    placeholder="Enter completion details..."
+                    className="w-full border border-gray-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-[#C6A15B] resize-none"
+                    rows={3}
+                  />
+                </div>
+            )}
           {/* Actions */}
           <div className="flex justify-between items-center pt-2">
             <button
