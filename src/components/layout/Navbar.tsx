@@ -51,7 +51,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
 
         if (userData) {
           setName(userData.name || user.email || "User");
-          setDesignation(userData.designation?.trim().toLowerCase() || "employee");
+          setDesignation(userData.designation?.trim() || "");
         }
       } catch (err) {
         console.error("User fetch error:", err);
@@ -128,6 +128,13 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
     fetchNotifications();
   };
 
+  // Delete a single notification
+  const deleteNotification = async (id: string) => {
+    await supabase.from("notifications").delete().eq("id", id);
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  // Delete all notifications for this user
   const deleteAllNotifications = async () => {
     if (!userId || notifications.length === 0) return;
     await supabase.from("notifications").delete().eq("user_id", userId);
@@ -144,8 +151,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
     ? name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
     : "U";
 
-
-  /* ── shared notification list UI ── */
+  /* ── notification list — individual delete on hover ── */
   const NotificationList = () => (
     <>
       {notifications.length === 0 ? (
@@ -159,20 +165,50 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
         notifications.map((n) => (
           <div
             key={n.id}
-            onClick={() => markAsRead(n.id)}
-            className={`flex items-start gap-3 px-4 py-3 cursor-pointer border-b border-gray-50 transition hover:bg-gray-50 ${
+            className={`group flex items-start gap-3 px-4 py-3 border-b border-gray-50 transition hover:bg-gray-50 ${
               !n.is_read ? "bg-blue-50/60" : ""
             }`}
           >
-            <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${!n.is_read ? "bg-blue-500" : "bg-gray-200"}`} />
-            <p className="text-sm text-gray-700 leading-snug">{n.message}</p>
+            {/* Blue/grey dot — clicking marks as read */}
+            <button
+              onClick={() => markAsRead(n.id)}
+              className="mt-1.5 flex-shrink-0"
+              title="Mark as read"
+            >
+              <div className={`w-2 h-2 rounded-full ${!n.is_read ? "bg-blue-500" : "bg-gray-200"}`} />
+            </button>
+
+            {/* Message — clicking marks as read */}
+            <p
+              onClick={() => markAsRead(n.id)}
+              className="flex-1 text-sm text-gray-700 leading-snug cursor-pointer"
+            >
+              {n.message}
+            </p>
+
+            {/* Delete button — visible on hover */}
+            <button
+              onClick={() => deleteNotification(n.id)}
+              className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition p-1 rounded hover:bg-red-50"
+              title="Delete notification"
+            >
+              <svg
+                className="w-3.5 h-3.5 text-gray-300 hover:text-red-500 transition"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
         ))
       )}
     </>
   );
 
-  /* ── shared notification header UI ── */
+  /* ── notification header — "Delete All" text button ── */
   const NotificationHeader = () => (
     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
       <div className="flex items-center gap-2">
@@ -185,33 +221,20 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
       </div>
 
       {notifications.length > 0 && (
-        <div className="flex items-center gap-2">
-          {/* Mark all read */}
+        <div className="flex items-center gap-3">
           {unreadCount > 0 && (
             <button
               onClick={markAllRead}
               className="text-xs text-gray-400 hover:text-gray-700 transition"
-              title="Mark all as read"
             >
               Mark all read
             </button>
           )}
-
-          {/* Delete all */}
           <button
             onClick={deleteAllNotifications}
-            className="p-1 rounded hover:bg-red-50 transition group"
-            title="Delete all notifications"
+            className="text-xs text-red-400 hover:text-red-600 transition font-medium"
           >
-            <svg
-              className="w-3.5 h-3.5 text-gray-400 group-hover:text-red-500 transition"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4h6v3M3 7h18" />
-            </svg>
+            Delete All
           </button>
         </div>
       )}
@@ -310,8 +333,8 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
               <p className="text-sm text-white font-medium leading-none">
                 {loading ? "Loading..." : name || "User"}
               </p>
-              <p className="text-[11px] text-gray-500 mt-0.5 leading-none capitalize">
-                {designation || "-"}
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-none">
+                {designation || "—"}
               </p>
             </div>
             <svg className="w-3.5 h-3.5 text-gray-500 ml-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
