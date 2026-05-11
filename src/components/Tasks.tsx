@@ -166,6 +166,7 @@ const handleSubmit = async () => {
     fileUrl = publicUrlData.publicUrl;
   }
 
+  // ✅ UPDATE TASK
   if (editingId) {
     const { error } = await supabase
       .from("tasks")
@@ -176,7 +177,8 @@ const handleSubmit = async () => {
         status,
         priority,
         assigned_to: assignedTo ? assignedTo : user.id,
-        attachment_url: fileUrl ?? selectedTask?.attachment_url ?? null,
+        attachment_url:
+          fileUrl ?? selectedTask?.attachment_url ?? null,
       })
       .eq("id", editingId);
 
@@ -184,45 +186,53 @@ const handleSubmit = async () => {
       console.error("UPDATE ERROR:", error.message);
       return;
     }
-  } 
-  
-const assignedUserId = assignedTo ? assignedTo : user.id;
 
-if (assignedUserId && assignedUserId !== user.id) {
-  const { data: currentUser } = await supabase
-    .from("users")
-    .select("name")
-    .eq("id", user.id)
-    .single();
+    // 🔔 Notify assigned user about update
+    const assignedUserId = assignedTo
+      ? assignedTo
+      : user.id;
 
-  await supabase.from("notifications").insert([
-    {
-      user_id: assignedUserId,
-      message: `${currentUser?.name || "Manager"} updated task "${title}"`,
-    },
-  ]);
-}
+    if (assignedUserId && assignedUserId !== user.id) {
+      const { data: currentUser } = await supabase
+        .from("users")
+        .select("name")
+        .eq("id", user.id)
+        .single();
 
+      await supabase.from("notifications").insert([
+        {
+          user_id: assignedUserId,
+          message: `${currentUser?.name || "Manager"} updated task "${title}"`,
+        },
+      ]);
+    }
+  }
+
+  // ✅ CREATE TASK
   else {
-    const { error } = await supabase.from("tasks").insert([
-      {
-        title,
-        description,
-        deadline: deadline || null,
-        status,
-        priority,
-        user_id: user.id,
-        assigned_to: assignedTo ? assignedTo : user.id,
-        attachment_url: fileUrl,
-      },
-    ]);
+    const { error } = await supabase
+      .from("tasks")
+      .insert([
+        {
+          title,
+          description,
+          deadline: deadline || null,
+          status,
+          priority,
+          user_id: user.id,
+          assigned_to: assignedTo
+            ? assignedTo
+            : user.id,
+          attachment_url: fileUrl,
+        },
+      ]);
 
     if (error) {
       console.error("INSERT ERROR:", error.message);
       return;
     }
 
-    // 🔔 Notification
+    // 🔔 Notification on assign
     if (assignedTo && assignedTo !== user.id) {
       await supabase.from("notifications").insert([
         {
@@ -290,7 +300,7 @@ const handleTaskComplete = async (task: Task) => {
         ? { ...prev, status: "done" }
         : null
     );
-
+    await fetchTasks();
     alert("Task completed");
   } catch (err) {
     console.error(err);
