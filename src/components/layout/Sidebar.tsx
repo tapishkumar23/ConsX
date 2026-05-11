@@ -34,6 +34,26 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+  id: "reports",
+  label: "Reports",
+  path: "/monthly-reports",
+  icon: (
+    <svg
+      className="w-4 h-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 17v-6m3 6V7m3 10v-4m3 8H6a2 2 0 01-2-2V5a2 2 0 012-2h7.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      />
+    </svg>
+  ),
+},
 ];
 
 const HR_NAV_ITEMS = [

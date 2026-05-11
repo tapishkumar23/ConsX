@@ -5,7 +5,7 @@ import LeaveManager from "./pages/LeaveManager";
 import HRLeaves from "./pages/HRLeaves";
 import CompanyPolicies from "./components/Policies";
 import ResetPassword from "./pages/ResetPassword";
-
+import MonthlyReports from "./pages/MonthlyReports";
 import { AuthProvider } from "./pages/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -65,6 +65,15 @@ function App() {
           <Route
             path="/policies"
             element={<CompanyPolicies />}
+          />
+
+          <Route
+            path="/monthly-reports"
+            element={
+              <ProtectedRoute>
+                <MonthlyReports />
+              </ProtectedRoute>
+            }
           />
 
         </Routes>
