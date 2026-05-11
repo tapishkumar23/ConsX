@@ -15,7 +15,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const location = useLocation();
 
   const [name, setName] = useState("");
-  const [role, setRole] = useState("");
+  const [designation, setDesignation] = useState("");
   const [loading, setLoading] = useState(true);
 
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -45,13 +45,13 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
 
         const { data: userData } = await supabase
           .from("users")
-          .select("name, role")
+          .select("name, designation")
           .eq("id", user.id)
           .single();
 
         if (userData) {
           setName(userData.name || user.email || "User");
-          setRole(userData.role?.trim().toLowerCase() || "employee");
+          setDesignation(userData.designation?.trim().toLowerCase() || "employee");
         }
       } catch (err) {
         console.error("User fetch error:", err);
@@ -144,13 +144,6 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
     ? name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
     : "U";
 
-  const roleLabel: Record<string, string> = {
-    ceo: "CEO",
-    hr: "HR",
-    manager: "Manager",
-    employee: "Employee",
-    backend_employee: "Backend Employee",
-  };
 
   /* ── shared notification list UI ── */
   const NotificationList = () => (
@@ -318,7 +311,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
                 {loading ? "Loading..." : name || "User"}
               </p>
               <p className="text-[11px] text-gray-500 mt-0.5 leading-none capitalize">
-                {roleLabel[role] ?? role}
+                {designation || "-"}
               </p>
             </div>
             <svg className="w-3.5 h-3.5 text-gray-500 ml-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">

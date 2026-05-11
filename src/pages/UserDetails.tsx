@@ -261,7 +261,7 @@ const UserDetails = () => {
                   <p className={`text-xs capitalize truncate ${
                     selectedUserId === myProfile?.id ? "text-white/60" : "text-gray-400"
                   }`}>
-                    {myProfile?.role}
+                    {myProfile?.designation}
                   </p>
                 </div>
               </div>
@@ -298,7 +298,7 @@ const UserDetails = () => {
                         <p className={`text-xs capitalize truncate ${
                           selectedUserId === u.id ? "text-white/60" : "text-gray-400"
                         }`}>
-                          {u.role}
+                          {u.designation}
                         </p>
                       </div>
                     </div>
@@ -386,14 +386,7 @@ const UserDetails = () => {
 
                     <Field label="Designation" name="designation" placeholder="Software Engineer" />
 
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Role</label>
-                      <input
-                        value={form.role ?? ""}
-                        disabled
-                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-default outline-none capitalize"
-                      />
-                    </div>
+                    
                   </div>
                 </div>
               )}
