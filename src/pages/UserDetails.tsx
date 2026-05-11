@@ -139,10 +139,10 @@ const UserDetails = () => {
 
   /* ── section config ── */
   const sections = [
-    { id: "employee",  label: "Employee Info",      icon: "👤" },
-    { id: "emergency", label: "Emergency Contact",   icon: "🚨" },
-    { id: "address",   label: "Address",             icon: "🏠" },
-    { id: "banking",   label: "Banking & Gov.",      icon: "🏦" },
+    { id: "employee",  label: "Employee Info"},
+    { id: "emergency", label: "Emergency Contact"},
+    { id: "address",   label: "Address"},
+    { id: "banking",   label: "Banking & Gov."},
   ];
 
   /* ── field helpers ── */
