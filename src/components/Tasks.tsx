@@ -270,21 +270,14 @@ const handleTaskComplete = async (task: Task) => {
       .single();
 
     // 🔔 Notify manager/CEO
-    const { data: admins } = await supabase
-      .from("users")
-      .select("id, role")
-      .in("role", ["manager", "ceo"]);
-
-    if (admins && admins.length > 0) {
-      const notifications = admins.map((admin) => ({
-        user_id: admin.id,
-        message: `${currentUser?.name || "Employee"} completed task "${task.title}"`,
-      }));
-
-      await supabase
-        .from("notifications")
-        .insert(notifications);
-    }
+    if (task.user_id !== user?.id) {
+  await supabase.from("notifications").insert([
+    {
+      user_id: task.user_id,
+      message: `${currentUser?.name || "Employee"} completed task "${task.title}"`,
+    },
+  ]);
+}
 
     // update UI instantly
     setTasks((prev) =>
