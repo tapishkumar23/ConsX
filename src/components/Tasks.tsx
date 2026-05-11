@@ -21,6 +21,7 @@ type Task = {
     name: string;
   };
   attachment_url?: string | null;
+  completion_comment?: string | null;
 };
 
 const Tasks = () => {
@@ -250,10 +251,18 @@ const handleSubmit = async () => {
 
 const handleTaskComplete = async (task: Task) => {
   try {
+    const comment = window.prompt(
+      "COMMENT",
+      ""
+    );
+
+    if (comment === null) return;
+
     const { error } = await supabase
       .from("tasks")
       .update({
         status: "done",
+        completion_comment: comment,
       })
       .eq("id", task.id);
 
@@ -269,31 +278,41 @@ const handleTaskComplete = async (task: Task) => {
       .eq("id", user?.id)
       .single();
 
-    // 🔔 Notify manager/CEO
+    // 🔔 Notify creator
     if (task.user_id !== user?.id) {
-  await supabase.from("notifications").insert([
-    {
-      user_id: task.user_id,
-      message: `${currentUser?.name || "Employee"} completed task "${task.title}"`,
-    },
-  ]);
-}
+      await supabase.from("notifications").insert([
+        {
+          user_id: task.user_id,
+          message: `${currentUser?.name || "Employee"} completed task "${task.title}"`,
+        },
+      ]);
+    }
 
     // update UI instantly
     setTasks((prev) =>
       prev.map((t) =>
         t.id === task.id
-          ? { ...t, status: "done" }
+          ? {
+              ...t,
+              status: "done",
+              completion_comment: comment,
+            }
           : t
       )
     );
 
     setSelectedTask((prev) =>
       prev
-        ? { ...prev, status: "done" }
+        ? {
+            ...prev,
+            status: "done",
+            completion_comment: comment,
+          }
         : null
     );
+
     await fetchTasks();
+
     alert("Task completed");
   } catch (err) {
     console.error(err);
@@ -388,6 +407,12 @@ const handleTaskComplete = async (task: Task) => {
               <p className={`text-sm mt-1 ${getStatusColor(task.status)}`}>
                 Status: {task.status}
               </p>
+
+              {task.completion_comment && (
+                <p className="text-xs text-gray-500 mt-1 italic">
+                  Comment: {task.completion_comment}
+                </p>
+                )}
 
               <p className="text-xs text-gray-500 mt-1">
                 Deadline: {task.deadline || "N/A"} (
@@ -573,6 +598,18 @@ const handleTaskComplete = async (task: Task) => {
                 {task.created_by_user?.name || "Unknown"}
               </span>
             </p>
+
+            {task.completion_comment && (
+              <p className="col-span-2">
+                <span className="font-medium text-gray-700">
+                  Completion Comment:
+                </span>{" "}
+                <span className="text-gray-600 italic">
+                  {task.completion_comment}
+                </span>
+              </p>
+            )}
+
           </div>
 
           {/* Attachment */}
