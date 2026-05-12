@@ -48,7 +48,7 @@ useEffect(() => {
 }, [role, userId]);
 
 const fetchAnnouncements = async () => {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("announcements")
     .select("*")
     .order("created_at", { ascending: false });
