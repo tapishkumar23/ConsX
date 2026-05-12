@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../pages/AuthContext";
 import { supabase } from "../Supabase/supabase";
-
+import AnnouncementBanner from "../components/AnnouncementBanner";
+import CreateAnnouncement from "../components/CreateAnnouncement";
 import CalendarView from "../components/CalendarView";
 import Layout from "../components/layout/Layout";
 import Tasks from "../components/Tasks";
@@ -36,6 +37,18 @@ const Dashboard = () => {
 return (
   <Layout>
     <div className="p-4 sm:p-6 min-h-screen space-y-6 sm:space-y-8">
+    {/* ANNOUNCEMENTS */}
+    {user && (
+      <AnnouncementBanner
+        userId={user.id}
+        role={role}
+      />
+    )}
+
+    {/* CEO PANEL */}
+    {role === "ceo" && (
+      <CreateAnnouncement user={user} />
+    )}
 
       {/* TOP GRID */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
