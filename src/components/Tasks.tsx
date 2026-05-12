@@ -422,8 +422,8 @@ const handleTaskComplete = async (task: Task) => {
               </p>
 
               {task.completion_comment && (
-                <p className="text-xs text-gray-500 mt-1 italic">
-                  Comment: {task.completion_comment}
+                <p className="break-words whitespace-pre-wrap text-gray-500 italic">
+                 Comment: {task.completion_comment}
                 </p>
                 )}
 
@@ -432,9 +432,8 @@ const handleTaskComplete = async (task: Task) => {
                 {getDeadlineStatus(task.deadline, task.status)})
               </p>
 
-              <p>
-                Deadline: {task.deadline} at {task.deadline_time}
-                {formatTime(task.deadline_time)}
+              <p className="text-xs text-gray-500 mt-1">
+                Deadline Time: {formatTime(task.deadline_time) || "N/A"}
               </p>
 
               {task.assigned_to && (
@@ -631,14 +630,15 @@ const handleTaskComplete = async (task: Task) => {
             </p>
 
             {task.completion_comment && (
-              <p className="col-span-2">
-                <span className="font-medium text-gray-700">
+              <div className="col-span-2">
+                <span className="font-medium text-gray-700 block mb-1">
                   Completion Comment:
-                </span>{" "}
-                <span className="text-gray-600 italic">
-                  {task.completion_comment}
                 </span>
-              </p>
+
+                <p className="text-gray-600 italic break-all whitespace-pre-wrap">
+                  {task.completion_comment}
+                </p>
+              </div>
             )}
 
           </div>
