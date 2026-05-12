@@ -10,6 +10,7 @@ type Task = {
   title: string;
   description: string;
   deadline: string;
+  deadline_time: string;
   status: Status;
   priority: Priority;
   user_id: string; // creator
@@ -36,6 +37,7 @@ const Tasks = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [deadline, setDeadline] = useState("");
+  const [deadlineTime, setDeadlineTime] = useState("18:30");
   const [status, setStatus] = useState<Status>("todo");
   const [priority, setPriority] = useState<Priority>("medium");
 
@@ -141,7 +143,18 @@ else {
     setShowForm(false);
     setAssignedTo("");
   };
+const formatTime = (time: string) => {
+  const [hours, minutes] = time.split(":");
 
+  const date = new Date();
+  date.setHours(Number(hours));
+  date.setMinutes(Number(minutes));
+
+  return date.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
   // ✅ CREATE / UPDATE TASK (WITH ATTACHMENT)
 const handleSubmit = async () => {
   if (!title || !user) return;
@@ -167,6 +180,7 @@ const handleSubmit = async () => {
 
     fileUrl = publicUrlData.publicUrl;
   }
+
 
   // ✅ UPDATE TASK
   if (editingId) {
@@ -219,6 +233,7 @@ const handleSubmit = async () => {
           title,
           description,
           deadline: deadline || null,
+          deadline_time: deadlineTime,
           status,
           priority,
           user_id: user.id,
@@ -417,6 +432,11 @@ const handleTaskComplete = async (task: Task) => {
                 {getDeadlineStatus(task.deadline, task.status)})
               </p>
 
+              <p>
+                Deadline: {task.deadline} at {task.deadline_time}
+                {formatTime(task.deadline_time)}
+              </p>
+
               {task.assigned_to && (
                 <p className="text-xs text-gray-500 mt-1">
                   Assigned To: {task.assigned_user?.name || "Unassigned"}
@@ -493,6 +513,19 @@ const handleTaskComplete = async (task: Task) => {
                 className="border p-2 w-full mt-1 rounded-lg"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Deadline Time
+              </label>
+
+              <input
+                type="time"
+                value={deadlineTime}
+                onChange={(e) => setDeadlineTime(e.target.value)}
+                className="w-full border rounded-lg px-3 py-2"
               />
             </div>
 

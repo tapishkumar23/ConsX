@@ -235,18 +235,70 @@ const { data, error } = await supabase
     return "Upcoming";
   };
 
+  const downloadCSV = () => {
+  const headers = [
+    "Lead ID", "Name", "Company", "Email", "Phone",
+    "Job Title", "Source", "Type", "Status", "Priority",
+    "Last Contacted", "Next Follow-Up", "Description", "Added By"
+  ];
+
+  const rows = leads.map((l) => [
+    l.leadId,
+    l.name,
+    l.company,
+    l.email,
+    l.phone,
+    l.jobTitle,
+    l.source,
+    l.type,
+    l.status,
+    l.priority,
+    l.lastContacted || "N/A",
+    l.nextFollowUp || "N/A",
+    `"${(l.description || "").replace(/"/g, '""')}"`, // escape quotes in description
+    l.createdByName || "Unknown",
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map((row) => row.join(","))
+    .join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `leads_${new Date().toISOString().split("T")[0]}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
   return (
     <>
       <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mt-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">CRM Leads</h2>
 
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-black text-white px-4 py-1.5 rounded-lg hover:bg-gray-800 transition"
-          >
-            + Add Lead
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Download CSV */}
+            {leads.length > 0 && (
+              <button
+                onClick={downloadCSV}
+                title="Download all leads as CSV"
+                className="p-2 rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+            )}
+
+            <button
+              onClick={() => setShowForm(true)}
+              className="bg-black text-white px-4 py-1.5 rounded-lg hover:bg-gray-800 transition"
+            >
+              + Add Lead
+            </button>
+          </div>
         </div>
 
         <div className="space-y-3">

@@ -3,11 +3,12 @@ import { supabase } from "../../Supabase/supabase";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/": "Office",
+  "/": "Altruity Office",
   "/policies": "Company Policies",
   "/leave-manager": "Leave Manager",
   "/hr-leaves": "HR Panel",
   "/user-details": "Employee Profiles",
+  "/monthly-reports": "Monthly Reports",
 };
 
 const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
