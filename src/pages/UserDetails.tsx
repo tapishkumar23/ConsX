@@ -14,6 +14,71 @@ interface PayrollDoc {
   uploaded_by: string;
   created_at: string;
 }
+// Paste this ABOVE: const UserDetails = () => {
+
+const SectionTitle = ({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle: string;
+}) => (
+  <div className="mb-5">
+    <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+    <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
+    <div className="mt-3 border-t border-gray-100" />
+  </div>
+);
+
+const Field = ({
+  label,
+  name,
+  type = "text",
+  placeholder = "",
+  options,
+  isHR,
+  form,
+  handleChange,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  placeholder?: string;
+  options?: string[];
+  isHR: boolean;
+  form: any;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+}) => (
+  <div>
+    <label className="block text-xs text-gray-500 mb-1">{label}</label>
+    {options ? (
+      <select
+        name={name}
+        value={form[name] ?? ""}
+        onChange={handleChange}
+        disabled={!isHR}
+        className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none transition
+          ${!isHR ? "bg-gray-50 text-gray-500 cursor-default" : "bg-white focus:border-gray-400"}`}
+      >
+        <option value="">— Select —</option>
+        {options.map((o) => (
+          <option key={o} value={o}>{o}</option>
+        ))}
+      </select>
+    ) : (
+      <input
+        type={type}
+        name={name}
+        value={form[name] ?? ""}
+        onChange={handleChange}
+        disabled={!isHR}
+        placeholder={isHR ? placeholder : "—"}
+        className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none transition
+          ${!isHR ? "bg-gray-50 text-gray-500 cursor-default" : "bg-white focus:border-gray-400"}`}
+      />
+    )}
+  </div>
+);
 
 const UserDetails = () => {
   const { user, role } = useAuth();
@@ -338,73 +403,7 @@ const UserDetails = () => {
   ];
 
   /* ── field helpers ── */
-  const Field = ({
-    label,
-    name,
-    type = "text",
-    placeholder = "",
-    options,
-  }: {
-    label: string;
-    name: string;
-    type?: string;
-    placeholder?: string;
-    options?: string[];
-  }) => (
-    <div>
-      <label className="block text-xs text-gray-500 mb-1">{label}</label>
-      {options ? (
-        <select
-          name={name}
-          value={form[name] ?? ""}
-          onChange={handleChange}
-          disabled={!isHR}
-          className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none transition
-            ${
-              !isHR
-                ? "bg-gray-50 text-gray-500 cursor-default"
-                : "bg-white focus:border-gray-400"
-            }`}
-        >
-          <option value="">— Select —</option>
-          {options.map((o) => (
-            <option key={o} value={o}>
-              {o}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          type={type}
-          name={name}
-          value={form[name] ?? ""}
-          onChange={handleChange}
-          disabled={!isHR}
-          placeholder={isHR ? placeholder : "—"}
-          className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none transition
-            ${
-              !isHR
-                ? "bg-gray-50 text-gray-500 cursor-default"
-                : "bg-white focus:border-gray-400"
-            }`}
-        />
-      )}
-    </div>
-  );
-
-  const SectionTitle = ({
-    title,
-    subtitle,
-  }: {
-    title: string;
-    subtitle: string;
-  }) => (
-    <div className="mb-5">
-      <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-      <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
-      <div className="mt-3 border-t border-gray-100" />
-    </div>
-  );
+  
 
   if (loading)
     return (
@@ -581,6 +580,7 @@ const UserDetails = () => {
                       label="Full Name"
                       name="name"
                       placeholder="John Doe"
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
                     <div>
                       <label className="block text-xs text-gray-500 mb-1">
@@ -598,46 +598,54 @@ const UserDetails = () => {
                       name="phone"
                       type="tel"
                       placeholder="+91"
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
-                    <Field label="Date of Birth" name="dob" type="date" />
+                    <Field label="Date of Birth" name="dob" type="date" isHR={isHR} form={form} handleChange={handleChange} />
 
                     <Field
                       label="Date of Joining"
                       name="joining_date"
                       type="date"
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
                     <Field
                       label="Gender"
                       name="gender"
                       options={["Male", "Female", "Other", "Prefer not to say"]}
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
 
                     <Field
                       label="Marital Status"
                       name="marital_status"
                       options={["Single", "Married", "Divorced", "Widowed"]}
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
                     <Field
                       label="Blood Group"
                       name="blood_group"
                       options={["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"]}
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
 
                     <Field
                       label="Nationality"
                       name="nationality"
                       placeholder="Indian"
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
                     <Field
                       label="Department"
                       name="department"
                       placeholder="Engineering"
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
 
                     <Field
                       label="Designation"
                       name="designation"
                       placeholder="Software Engineer"
+                      isHR={isHR} form={form} handleChange={handleChange}
                     />
                   </div>
                 </div>
@@ -660,17 +668,20 @@ const UserDetails = () => {
                         label="Father's Name"
                         name="father_name"
                         placeholder="Full name"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                       <Field
                         label="Father's Phone"
                         name="father_phone"
                         type="tel"
                         placeholder="+91"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                       <Field
                         label="Father's Date of Birth"
                         name="father_dob"
                         type="date"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                     </div>
                   </div>
@@ -684,17 +695,20 @@ const UserDetails = () => {
                         label="Mother's Name"
                         name="mother_name"
                         placeholder="Full name"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                       <Field
                         label="Mother's Phone"
                         name="mother_phone"
                         type="tel"
                         placeholder="+91"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                       <Field
                         label="Mother's Date of Birth"
                         name="mother_dob"
                         type="date"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                     </div>
                   </div>
@@ -774,17 +788,20 @@ const UserDetails = () => {
                         label="Bank Name"
                         name="bank_name"
                         placeholder="State Bank of India"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                       <Field
                         label="IFSC Code"
                         name="ifsc_code"
                         placeholder="SBIN0001234"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                       <div className="col-span-2">
                         <Field
                           label="Account Number"
                           name="account_number"
                           placeholder="Account number"
+                          isHR={isHR} form={form} handleChange={handleChange}
                         />
                       </div>
                     </div>
@@ -799,11 +816,13 @@ const UserDetails = () => {
                         label="Aadhaar Number"
                         name="aadhar_number"
                         placeholder="XXXX XXXX XXXX"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                       <Field
                         label="PAN Number"
                         name="pan_number"
                         placeholder="ABCDE1234F"
+                        isHR={isHR} form={form} handleChange={handleChange}
                       />
                     </div>
                   </div>
