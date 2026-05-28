@@ -35,25 +35,15 @@ const NAV_ITEMS = [
     ),
   },
   {
-  id: "reports",
-  label: "Reports",
-  path: "/monthly-reports",
-  icon: (
-    <svg
-      className="w-4 h-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 17v-6m3 6V7m3 10v-4m3 8H6a2 2 0 01-2-2V5a2 2 0 012-2h7.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-      />
-    </svg>
-  ),
-},
+    id: "reports",
+    label: "Reports",
+    path: "/monthly-reports",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-6m3 6V7m3 10v-4m3 8H6a2 2 0 01-2-2V5a2 2 0 012-2h7.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+  },
 ];
 
 const HR_NAV_ITEMS = [
@@ -91,117 +81,152 @@ const Sidebar = ({
   const { user } = useAuth();
 
   const [role, setRole] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [designation, setDesignation] = useState<string>("");
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchProfile = async () => {
       if (!user) return;
       const { data } = await supabase
         .from("users")
-        .select("role, leave_balance")
+        .select("role, name, designation")
         .eq("id", user.id)
         .single();
       if (data) {
         setRole(data.role?.trim().toLowerCase() ?? "employee");
+        setName(data.name ?? "");
+        setDesignation(data.designation ?? "");
       }
     };
-    fetch();
+    fetchProfile();
   }, [user]);
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
 
   const isHRorCEO = role === "hr" || role === "ceo";
+  const isEmployee = role === "employee";
+  const canLogSale = role === "employee" || role === "manager" || role === "ceo";
 
+  const initials = name
+    ? name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
+    : "U";
 
   return (
-    <aside
-      className={`fixed top-0 left-0 bottom-0 z-40 flex flex-col bg-white border-r border-gray-200 shadow-md transform transition-transform duration-300 ${
-        collapsed ? "-translate-x-full" : "translate-x-0"
-      } w-[240px]`}
-    >
-      {/* Brand — same height as Navbar (h-16) */}
-      <div className="flex items-center px-4 h-16 border-b border-gray-200">
-    {!collapsed && (
-  <div className="flex items-center gap-3 pl-1">
-    
-    {/* BACK BUTTON */}
-    <button
-      onClick={() => setCollapsed(true)}
-      className="p-2 rounded-md hover:bg-gray-100 transition"
-    >
-      <svg
-        className="w-4 h-4 text-gray-700"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2}
-        viewBox="0 0 24 24"
+    <>
+      <aside
+        className={`fixed top-0 left-0 bottom-0 z-40 flex flex-col bg-white border-r border-gray-200 shadow-md transform transition-transform duration-300 ${
+          collapsed ? "-translate-x-full" : "translate-x-0"
+        } w-[240px]`}
       >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
+        {/* Brand header */}
+        <div className="flex items-center px-4 h-16 border-b border-gray-200 flex-shrink-0">
+          {!collapsed && (
+            <div className="flex items-center gap-3 pl-1">
+              <button
+                onClick={() => setCollapsed(true)}
+                className="p-2 rounded-md hover:bg-gray-100 transition"
+              >
+                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span className="text-gray-900 font-semibold text-sm">Sidebar</span>
+            </div>
+          )}
+        </div>
 
-    {/* TITLE */}
-    <span className="text-gray-900 font-semibold text-sm">
-      Sidebar
-    </span>
+        {/* Nav */}
+        <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
+          {!collapsed && (
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest px-2 pb-2 font-medium">
+              Main
+            </p>
+          )}
 
-  </div>
-)}
-      </div>
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.path)}
+              title={collapsed ? item.label : undefined}
+              className={`w-full flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm transition-all ${
+                isActive(item.path)
+                  ? "bg-gray-900 text-white font-medium"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              } ${collapsed ? "justify-center" : ""}`}
+            >
+              <span className="flex-shrink-0">{item.icon}</span>
+              {!collapsed && <span>{item.label}</span>}
+            </button>
+          ))}
 
-      {/* Nav */}
-      <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
+          {/* Log Sale — employee, manager, ceo */}
+          {canLogSale && (
+            <button
+              onClick={() => navigate("/log-sale")}
+              title={collapsed ? "Log Sale" : undefined}
+              className={`w-full flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm transition-all ${
+                isActive("/log-sale")
+                  ? "bg-gray-900 text-white font-medium"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              } ${collapsed ? "justify-center" : ""}`}
+            >
+              <span className="flex-shrink-0">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+              {!collapsed && <span>Log Sale</span>}
+            </button>
+          )}
+
+          {isHRorCEO && (
+            <>
+              <div className={`${collapsed ? "border-t border-gray-200 mx-1 my-3" : "pt-4 pb-1"}`}>
+                {!collapsed && (
+                  <p className="text-[10px] text-gray-600 uppercase tracking-widest px-2 font-medium">
+                    Management
+                  </p>
+                )}
+              </div>
+
+              {HR_NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => navigate(item.path)}
+                  title={collapsed ? item.label : undefined}
+                  className={`w-full flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm transition-all ${
+                    isActive(item.path)
+                      ? "bg-white text-gray-900 font-medium shadow-sm"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  } ${collapsed ? "justify-center" : ""}`}
+                >
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  {!collapsed && <span>{item.label}</span>}
+                </button>
+              ))}
+            </>
+          )}
+        </nav>
+
+        {/* Profile section */}
         {!collapsed && (
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest px-2 pb-2 font-medium">
-            Main
-          </p>
-        )}
-
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            title={collapsed ? item.label : undefined}
-            className={`w-full flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm transition-all ${
-              isActive(item.path)
-                ? "bg-gray-900 text-white font-medium"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            } ${collapsed ? "justify-center" : ""}`}
-          >
-            <span className="flex-shrink-0">{item.icon}</span>
-            {!collapsed && <span>{item.label}</span>}
-          </button>
-        ))}
-
-        {isHRorCEO && (
-          <>
-            <div className={`${collapsed ? "border-t border-gray-200 mx-1 my-3" : "pt-4 pb-1"}`}>
-              {!collapsed && (
-                <p className="text-[10px] text-gray-600 uppercase tracking-widest px-2 font-medium">
-                  Management
-                </p>
-              )}
+          <div className="border-t border-gray-100 p-4 flex-shrink-0">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                {initials}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{name || "—"}</p>
+                <p className="text-[11px] text-gray-400 truncate capitalize">{designation || role || "—"}</p>
+              </div>
             </div>
 
-            {HR_NAV_ITEMS.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => navigate(item.path)}
-                title={collapsed ? item.label : undefined}
-                className={`w-full flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm transition-all ${
-                  isActive(item.path)
-                    ? "bg-white text-gray-900 font-medium shadow-sm"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                } ${collapsed ? "justify-center" : ""}`}
-              >
-                <span className="flex-shrink-0">{item.icon}</span>
-                {!collapsed && <span>{item.label}</span>}
-              </button>
-            ))}
-          </>
+          </div>
         )}
-      </nav>
-    </aside>
+      </aside>
+
+    </>
   );
 };
 

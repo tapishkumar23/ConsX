@@ -371,6 +371,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
         </div>
       </div>
     </div>
+
   );
 };
 

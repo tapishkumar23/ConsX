@@ -6,6 +6,7 @@ import HRLeaves from "./pages/HRLeaves";
 import CompanyPolicies from "./components/Policies";
 import ResetPassword from "./pages/ResetPassword";
 import MonthlyReports from "./pages/MonthlyReports";
+import LogSale from "./pages/LogSale";
 import { AuthProvider } from "./pages/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -72,6 +73,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <MonthlyReports />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/log-sale"
+            element={
+              <ProtectedRoute>
+                <LogSale />
               </ProtectedRoute>
             }
           />

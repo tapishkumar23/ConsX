@@ -6,13 +6,16 @@ import CreateAnnouncement from "../components/CreateAnnouncement";
 import CalendarView from "../components/CalendarView";
 import Layout from "../components/layout/Layout";
 import Tasks from "../components/Tasks";
+import UpcomingMeetings from "../components/UpcomingMeetings";
 import CRM from "../components/CRM";
 import CRMBoard from "../components/CRMBoard";
 import AssignProject from "../components/AssignProject";
+import SalesLeaderboard from "../components/SalesLeaderboard";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [role, setRole] = useState<string>("employee");
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   useEffect(() => {
     const fetchRole = async () => {
@@ -73,6 +76,11 @@ return (
         </section>
       </div>
 
+      {/* UPCOMING MEETINGS */}
+      <section className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition">
+        <UpcomingMeetings />
+      </section>
+
       {/* ASSIGN PROJECT */}
       <section className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm">
         <AssignProject role={role} user={user} />
@@ -109,6 +117,41 @@ return (
       )}
 
     </div>
+
+    {/* Floating gold medal — fixed to right edge, employee / manager / ceo only */}
+    {(role === "employee" || role === "manager" || role === "ceo") && (
+      <button
+        onClick={() => setShowLeaderboard(true)}
+        title="Sales Leaderboard"
+        className="fixed right-5 top-[88px] z-30 group drop-shadow-xl hover:drop-shadow-2xl transition-all hover:scale-110 active:scale-95"
+      >
+        <svg width="58" height="58" viewBox="0 0 56 56" fill="none">
+          {/* Outer glow ring */}
+          <circle cx="28" cy="28" r="27" fill="#7A5C1E" opacity="0.2" />
+          {/* Dark gold border */}
+          <circle cx="28" cy="28" r="25" fill="#8B6014" />
+          {/* Main gold */}
+          <circle cx="28" cy="28" r="23" fill="#C6A15B" />
+          {/* Mid gold */}
+          <circle cx="28" cy="28" r="20.5" fill="#DDB96A" />
+          {/* Bright inner */}
+          <circle cx="28" cy="28" r="18" fill="#F0CC70" />
+          {/* Star shadow */}
+          <path d="M28 12L31.5 21.8H42L33.7 27.7L37.2 37.5L28 31.6L18.8 37.5L22.3 27.7L14 21.8H24.5L28 12Z" fill="#8B6014" />
+          {/* Star highlight */}
+          <path d="M28 15.5L30.8 23.8H39.5L32.8 28.5L35.6 36.8L28 32.1L20.4 36.8L23.2 28.5L16.5 23.8H25.2L28 15.5Z" fill="#C6A15B" />
+        </svg>
+
+        {/* Tooltip label */}
+        <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 whitespace-nowrap bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          Sales Leaderboard
+        </span>
+      </button>
+    )}
+
+    {showLeaderboard && (
+      <SalesLeaderboard onClose={() => setShowLeaderboard(false)} />
+    )}
   </Layout>
 );};
 
