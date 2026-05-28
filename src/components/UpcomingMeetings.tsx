@@ -74,13 +74,6 @@ const UpcomingMeetings = () => {
     ].filter((m, idx, arr) => arr.findIndex((x) => x.id === m.id) === idx)
      .sort((a, b) => a.meeting_date.localeCompare(b.meeting_date) || a.meeting_time.localeCompare(b.meeting_time));
 
-    const error = null;
-
-    if (error) {
-      console.error("MEETINGS FETCH ERROR:", error.message);
-      return;
-    }
-
     const { data: usersData } = await supabase.from("users").select("id, name");
 
     const formatted = (data || []).map((m) => {

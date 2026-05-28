@@ -105,7 +105,6 @@ const Sidebar = ({
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
 
   const isHRorCEO = role === "hr" || role === "ceo";
-  const isEmployee = role === "employee";
   const canLogSale = role === "employee" || role === "manager" || role === "ceo";
 
   const initials = name
