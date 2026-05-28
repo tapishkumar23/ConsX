@@ -38,7 +38,7 @@ const UpcomingMeetings = () => {
   const [meetingLink, setMeetingLink] = useState("");
   const [selectedAttendees, setSelectedAttendees] = useState<string[]>([]);
 
-  const canSchedule = role === "ceo" || role === "manager" || role === "hr";
+  const canSchedule = !!role;
 
   const fetchUsers = async () => {
     const { data } = await supabase.from("users").select("id, name");
