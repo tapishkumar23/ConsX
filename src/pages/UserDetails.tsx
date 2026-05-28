@@ -352,7 +352,12 @@ const UserDetails = () => {
       let query = supabase.from("users").select("*").neq("id", user.id);
       if (role === "manager") query = query.in("role", ["employee", "backend_employee"]);
       const { data, error } = await query;
-      if (!error) setTeamMembers(data || []);
+      if (!error)
+        setTeamMembers(
+          (data || []).sort((a: any, b: any) =>
+            (a.name ?? "").localeCompare(b.name ?? "")
+          )
+        );
     } catch (err) {
       console.error(err);
     } finally {
@@ -405,7 +410,13 @@ const UserDetails = () => {
   };
 
   useEffect(() => { fetchUsers(); fetchCustomSections(); fetchCustomFieldDefs(); }, [user, role]);
-  useEffect(() => { if (selectedUserId) { fetchUserDetails(); fetchCustomFieldValues(); } }, [selectedUserId]);
+  useEffect(() => {
+    if (selectedUserId) {
+      fetchUserDetails();
+      fetchCustomFieldValues();
+      setActiveSection("employee");
+    }
+  }, [selectedUserId]);
   useEffect(() => { if (activeSection === "finances") fetchPayroll(); }, [activeSection, selectedUserId]);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
