@@ -339,8 +339,9 @@ const UserDetails = () => {
     try {
       const { data: me } = await supabase.from("users").select("*").eq("id", user.id).single();
       setMyProfile(me);
-      setSelectedUserId(user.id);
-      setForm(me ?? {});
+      // Only default to own profile on first load; preserve any already-selected user
+      setSelectedUserId((prev) => prev ?? user.id);
+      setForm((prevForm: any) => Object.keys(prevForm).length > 0 ? prevForm : (me ?? {}));
 
       if (role === "employee" || role === "backend_employee") {
         setTeamMembers([]);
