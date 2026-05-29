@@ -103,14 +103,17 @@ const handleDelete = async (id: string) => {
   );
 };
 
+  // Non-CEO users see nothing when there are no live announcements
+  if (announcements.length === 0 && role !== "ceo") return null;
+
   return (
     <div className="space-y-4">
 
-         {announcements.length === 0 && (
+      {announcements.length === 0 && (
         <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-6 text-center text-gray-500">
-            No announcements available
+          No announcements available
         </div>
-        )}
+      )}
         {announcements.map((announcement) => (
           <div
             key={announcement.id}

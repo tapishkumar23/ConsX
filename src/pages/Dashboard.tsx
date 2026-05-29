@@ -14,7 +14,7 @@ import SalesLeaderboard from "../components/SalesLeaderboard";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [role, setRole] = useState<string>("employee");
+  const [role, setRole] = useState<string>("");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   useEffect(() => {

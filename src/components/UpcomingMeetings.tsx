@@ -131,6 +131,33 @@ const UpcomingMeetings = () => {
   const handleSubmit = async () => {
     if (!title || !meetingDate || !user) return;
 
+    // Fetch organizer name once before any loop
+    const { data: organizerData } = await supabase
+      .from("users")
+      .select("name")
+      .eq("id", user.id)
+      .single();
+    const organizerName = organizerData?.name ?? "Someone";
+
+    // Human-readable date + time for notification messages
+    const friendlyDate = new Date(meetingDate + "T00:00:00").toLocaleDateString([], {
+      weekday: "short", month: "short", day: "numeric",
+    });
+    const [h, m] = meetingTime.split(":").map(Number);
+    const d = new Date(); d.setHours(h); d.setMinutes(m);
+    const friendlyTime = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+    const notifyAttendees = async (verb: "scheduled" | "updated") => {
+      const recipients = selectedAttendees.filter((id) => id !== user.id);
+      if (recipients.length === 0) return;
+      await supabase.from("notifications").insert(
+        recipients.map((attendeeId) => ({
+          user_id: attendeeId,
+          message: `${organizerName} ${verb} a meeting "${title}" on ${friendlyDate} at ${friendlyTime}`,
+        }))
+      );
+    };
+
     const payload = {
       title,
       description: description || null,
@@ -150,37 +177,15 @@ const UpcomingMeetings = () => {
         .update(payload)
         .eq("id", editingId);
 
-      if (error) {
-        console.error("UPDATE ERROR:", error.message);
-        return;
-      }
+      if (error) { console.error("UPDATE ERROR:", error.message); return; }
+      await notifyAttendees("updated");
     } else {
       const { error } = await supabase
         .from("upcoming_meetings")
         .insert([payload]);
 
-      if (error) {
-        console.error("INSERT ERROR:", error.message);
-        return;
-      }
-
-      // Notify attendees
-      for (const attendeeId of selectedAttendees) {
-        if (attendeeId !== user.id) {
-          const { data: organizer } = await supabase
-            .from("users")
-            .select("name")
-            .eq("id", user.id)
-            .single();
-
-          await supabase.from("notifications").insert([
-            {
-              user_id: attendeeId,
-              message: `${organizer?.name ?? "Someone"} scheduled a meeting "${title}" on ${meetingDate}`,
-            },
-          ]);
-        }
-      }
+      if (error) { console.error("INSERT ERROR:", error.message); return; }
+      await notifyAttendees("scheduled");
     }
 
     await fetchMeetings();
