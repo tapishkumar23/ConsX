@@ -99,18 +99,10 @@ const { data, error } = await supabase
   };
 
   useEffect(() => {
-    if (!user || !role) return;
+  if (user && role) {
     fetchLeads();
-
-    const channel = supabase
-      .channel("crm-leads-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, () => {
-        fetchLeads();
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, [user?.id, role]);
+  }
+}, [user, role]);
 
   useEffect(() => {
   const handleEsc = (e: KeyboardEvent) => {
@@ -158,7 +150,7 @@ const { data, error } = await supabase
         })
         .eq("id", editingId);
 
-      if (error) { console.error("UPDATE ERROR:", error); return; }
+      if (error) console.error("UPDATE ERROR:", error);
     } else {
       const { error } = await supabase.from("leads").insert([
         {
@@ -181,7 +173,7 @@ const { data, error } = await supabase
         },
       ]);
 
-      if (error) { console.error("INSERT ERROR:", error); return; }
+      if (error) console.error("INSERT ERROR:", error);
     }
 
     resetForm();
